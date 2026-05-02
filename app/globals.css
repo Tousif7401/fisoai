@@ -1,0 +1,101 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: "Fiso Geist";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/gyBhhwUxId8gMGYQMKR3pzfaWI_RnOM4mJPby1QNtA.woff2")
+    format("woff2");
+}
+
+@font-face {
+  font-family: "Fiso Geist";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/gyBhhwUxId8gMGYQMKR3pzfaWI_RruM4mJPby1QNtA.woff2")
+    format("woff2");
+}
+
+@font-face {
+  font-family: "Fiso Geist";
+  font-style: normal;
+  font-weight: 600 900;
+  font-display: swap;
+  src: url("/fonts/gyBhhwUxId8gMGYQMKR3pzfaWI_RQuQ4mJPby1QNtA.woff2")
+    format("woff2");
+}
+
+@font-face {
+  font-family: "Fiso Inter";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/1ZFS7N918ojhhd0nQWdj3jz4w.woff2") format("woff2");
+}
+
+:root {
+  --background: #ffffff;
+  --foreground: #181e25;
+  --dark: #181e25;
+  --lime: #d6fd70;
+  --hero-blue: #63728f;
+  --soft-panel: #eef1f5;
+  --white-64: rgba(255, 255, 255, 0.64);
+  --glass-white: rgba(255, 255, 255, 0.16);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: "Fiso Geist", Arial, Helvetica, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  background: var(--background);
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: "Fiso Geist", Arial, Helvetica, sans-serif;
+}
+
+.hero-video {
+  object-fit: cover;
+  object-position: 50% 50%;
+  filter: brightness(0.72) contrast(1.1) saturate(1.02);
+}
+
+a {
+  text-decoration: none;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+::selection {
+  background: var(--lime);
+  color: var(--dark);
+}
+
+@media (max-width: 809px) {
+  .hero-video {
+    object-fit: cover;
+    object-position: 50% 50%;
+  }
+}
