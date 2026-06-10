@@ -1,0 +1,124 @@
+<svg width="300" height="300" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" role="img">
+  <title>Branch Wreath Logo</title>
+  <desc>A circular wreath of organic branching shapes forming a logo</desc>
+
+  <defs>
+    <style>
+      .branch { fill: #1a1a1a; }
+      .brand-text { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
+    </style>
+  </defs>
+
+  <!-- Wreath built from 8 branch units rotated around center -->
+  <g transform="translate(150,150)">
+
+    <!-- Branch unit, repeated via rotation -->
+    <g class="branch">
+      <!-- Unit 1: 0deg -->
+      <g transform="rotate(0)">
+        <path d="M0,-58 C2,-52 1,-46 0,-40 C-1,-46 -2,-52 0,-58Z" fill="#1a1a1a"/>
+        <path d="M0,-50 C6,-46 10,-41 12,-35" stroke="#1a1a1a" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+        <path d="M12,-35 C15,-29 14,-23 12,-18" stroke="#1a1a1a" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+        <path d="M12,-35 C17,-32 20,-27 20,-21" stroke="#1a1a1a" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+        <path d="M0,-50 C-6,-46 -10,-41 -12,-35" stroke="#1a1a1a" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+        <path d="M-12,-35 C-15,-29 -14,-23 -12,-18" stroke="#1a1a1a" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+        <path d="M-12,-35 C-17,-32 -20,-27 -20,-21" stroke="#1a1a1a" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+        <path d="M0,-50 C0,-44 0,-40 0,-34" stroke="#1a1a1a" stroke-width="2.0" fill="none" stroke-linecap="round"/>
+        <path d="M0,-34 C4,-30 6,-25 6,-19" stroke="#1a1a1a" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+        <path d="M0,-34 C-4,-30 -6,-25 -6,-19" stroke="#1a1a1a" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      </g>
+      <!-- Unit 2 -->
+      <g transform="rotate(45)">
+        <path d="M0,-58 C2,-52 1,-46 0,-40 C-1,-46 -2,-52 0,-58Z" fill="#1a1a1a"/>
+        <path d="M0,-50 C6,-46 10,-41 12,-35" stroke="#1a1a1a" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+        <path d="M12,-35 C15,-29 14,-23 12,-18" stroke="#1a1a1a" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+        <path d="M12,-35 C17,-32 20,-27 20,-21" stroke="#1a1a1a" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+        <path d="M0,-50 C-6,-46 -10,-41 -12,-35" stroke="#1a1a1a" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+        <path d="M-12,-35 C-15,-29 -14,-23 -12,-18" stroke="#1a1a1a" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+        <path d="M-12,-35 C-17,-32 -20,-27 -20,-21" stroke="#1a1a1a" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+        <path d="M0,-50 C0,-44 0,-40 0,-34" stroke="#1a1a1a" stroke-width="2.0" fill="none" stroke-linecap="round"/>
+        <path d="M0,-34 C4,-30 6,-25 6,-19" stroke="#1a1a1a" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+        <path d="M0,-34 C-4,-30 -6,-25 -6,-19" stroke="#1a1a1a" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      </g>
+      <!-- Unit 3 -->
+      <g transform="rotate(90)">
+        <path d="M0,-58 C2,-52 1,-46 0,-40 C-1,-46 -2,-52 0,-58Z" fill="#1a1a1a"/>
+        <path d="M0,-50 C6,-46 10,-41 12,-35" stroke="#1a1a1a" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+        <path d="M12,-35 C15,-29 14,-23 12,-18" stroke="#1a1a1a" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+        <path d="M12,-35 C17,-32 20,-27 20,-21" stroke="#1a1a1a" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+        <path d="M0,-50 C-6,-46 -10,-41 -12,-35" stroke="#1a1a1a" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+        <path d="M-12,-35 C-15,-29 -14,-23 -12,-18" stroke="#1a1a1a" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+        <path d="M-12,-35 C-17,-32 -20,-27 -20,-21" stroke="#1a1a1a" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+        <path d="M0,-50 C0,-44 0,-40 0,-34" stroke="#1a1a1a" stroke-width="2.0" fill="none" stroke-linecap="round"/>
+        <path d="M0,-34 C4,-30 6,-25 6,-19" stroke="#1a1a1a" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+        <path d="M0,-34 C-4,-30 -6,-25 -6,-19" stroke="#1a1a1a" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      </g>
+      <!-- Unit 4 -->
+      <g transform="rotate(135)">
+        <path d="M0,-58 C2,-52 1,-46 0,-40 C-1,-46 -2,-52 0,-58Z" fill="#1a1a1a"/>
+        <path d="M0,-50 C6,-46 10,-41 12,-35" stroke="#1a1a1a" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+        <path d="M12,-35 C15,-29 14,-23 12,-18" stroke="#1a1a1a" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+        <path d="M12,-35 C17,-32 20,-27 20,-21" stroke="#1a1a1a" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+        <path d="M0,-50 C-6,-46 -10,-41 -12,-35" stroke="#1a1a1a" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+        <path d="M-12,-35 C-15,-29 -14,-23 -12,-18" stroke="#1a1a1a" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+        <path d="M-12,-35 C-17,-32 -20,-27 -20,-21" stroke="#1a1a1a" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+        <path d="M0,-50 C0,-44 0,-40 0,-34" stroke="#1a1a1a" stroke-width="2.0" fill="none" stroke-linecap="round"/>
+        <path d="M0,-34 C4,-30 6,-25 6,-19" stroke="#1a1a1a" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+        <path d="M0,-34 C-4,-30 -6,-25 -6,-19" stroke="#1a1a1a" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      </g>
+      <!-- Unit 5 -->
+      <g transform="rotate(180)">
+        <path d="M0,-58 C2,-52 1,-46 0,-40 C-1,-46 -2,-52 0,-58Z" fill="#1a1a1a"/>
+        <path d="M0,-50 C6,-46 10,-41 12,-35" stroke="#1a1a1a" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+        <path d="M12,-35 C15,-29 14,-23 12,-18" stroke="#1a1a1a" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+        <path d="M12,-35 C17,-32 20,-27 20,-21" stroke="#1a1a1a" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+        <path d="M0,-50 C-6,-46 -10,-41 -12,-35" stroke="#1a1a1a" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+        <path d="M-12,-35 C-15,-29 -14,-23 -12,-18" stroke="#1a1a1a" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+        <path d="M-12,-35 C-17,-32 -20,-27 -20,-21" stroke="#1a1a1a" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+        <path d="M0,-50 C0,-44 0,-40 0,-34" stroke="#1a1a1a" stroke-width="2.0" fill="none" stroke-linecap="round"/>
+        <path d="M0,-34 C4,-30 6,-25 6,-19" stroke="#1a1a1a" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+        <path d="M0,-34 C-4,-30 -6,-25 -6,-19" stroke="#1a1a1a" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      </g>
+      <!-- Unit 6 -->
+      <g transform="rotate(225)">
+        <path d="M0,-58 C2,-52 1,-46 0,-40 C-1,-46 -2,-52 0,-58Z" fill="#1a1a1a"/>
+        <path d="M0,-50 C6,-46 10,-41 12,-35" stroke="#1a1a1a" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+        <path d="M12,-35 C15,-29 14,-23 12,-18" stroke="#1a1a1a" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+        <path d="M12,-35 C17,-32 20,-27 20,-21" stroke="#1a1a1a" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+        <path d="M0,-50 C-6,-46 -10,-41 -12,-35" stroke="#1a1a1a" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+        <path d="M-12,-35 C-15,-29 -14,-23 -12,-18" stroke="#1a1a1a" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+        <path d="M-12,-35 C-17,-32 -20,-27 -20,-21" stroke="#1a1a1a" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+        <path d="M0,-50 C0,-44 0,-40 0,-34" stroke="#1a1a1a" stroke-width="2.0" fill="none" stroke-linecap="round"/>
+        <path d="M0,-34 C4,-30 6,-25 6,-19" stroke="#1a1a1a" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+        <path d="M0,-34 C-4,-30 -6,-25 -6,-19" stroke="#1a1a1a" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      </g>
+      <!-- Unit 7 -->
+      <g transform="rotate(270)">
+        <path d="M0,-58 C2,-52 1,-46 0,-40 C-1,-46 -2,-52 0,-58Z" fill="#1a1a1a"/>
+        <path d="M0,-50 C6,-46 10,-41 12,-35" stroke="#1a1a1a" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+        <path d="M12,-35 C15,-29 14,-23 12,-18" stroke="#1a1a1a" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+        <path d="M12,-35 C17,-32 20,-27 20,-21" stroke="#1a1a1a" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+        <path d="M0,-50 C-6,-46 -10,-41 -12,-35" stroke="#1a1a1a" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+        <path d="M-12,-35 C-15,-29 -14,-23 -12,-18" stroke="#1a1a1a" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+        <path d="M-12,-35 C-17,-32 -20,-27 -20,-21" stroke="#1a1a1a" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+        <path d="M0,-50 C0,-44 0,-40 0,-34" stroke="#1a1a1a" stroke-width="2.0" fill="none" stroke-linecap="round"/>
+        <path d="M0,-34 C4,-30 6,-25 6,-19" stroke="#1a1a1a" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+        <path d="M0,-34 C-4,-30 -6,-25 -6,-19" stroke="#1a1a1a" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      </g>
+      <!-- Unit 8 -->
+      <g transform="rotate(315)">
+        <path d="M0,-58 C2,-52 1,-46 0,-40 C-1,-46 -2,-52 0,-58Z" fill="#1a1a1a"/>
+        <path d="M0,-50 C6,-46 10,-41 12,-35" stroke="#1a1a1a" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+        <path d="M12,-35 C15,-29 14,-23 12,-18" stroke="#1a1a1a" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+        <path d="M12,-35 C17,-32 20,-27 20,-21" stroke="#1a1a1a" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+        <path d="M0,-50 C-6,-46 -10,-41 -12,-35" stroke="#1a1a1a" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+        <path d="M-12,-35 C-15,-29 -14,-23 -12,-18" stroke="#1a1a1a" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+        <path d="M-12,-35 C-17,-32 -20,-27 -20,-21" stroke="#1a1a1a" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+        <path d="M0,-50 C0,-44 0,-40 0,-34" stroke="#1a1a1a" stroke-width="2.0" fill="none" stroke-linecap="round"/>
+        <path d="M0,-34 C4,-30 6,-25 6,-19" stroke="#1a1a1a" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+        <path d="M0,-34 C-4,-30 -6,-25 -6,-19" stroke="#1a1a1a" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      </g>
+    </g>
+
+  </g>
+</svg>

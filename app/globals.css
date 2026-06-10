@@ -1,101 +1,55 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-@font-face {
-  font-family: "Fiso Geist";
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url("/fonts/gyBhhwUxId8gMGYQMKR3pzfaWI_RnOM4mJPby1QNtA.woff2")
-    format("woff2");
-}
-
-@font-face {
-  font-family: "Fiso Geist";
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: url("/fonts/gyBhhwUxId8gMGYQMKR3pzfaWI_RruM4mJPby1QNtA.woff2")
-    format("woff2");
-}
-
-@font-face {
-  font-family: "Fiso Geist";
-  font-style: normal;
-  font-weight: 600 900;
-  font-display: swap;
-  src: url("/fonts/gyBhhwUxId8gMGYQMKR3pzfaWI_RQuQ4mJPby1QNtA.woff2")
-    format("woff2");
-}
-
-@font-face {
-  font-family: "Fiso Inter";
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: url("/fonts/1ZFS7N918ojhhd0nQWdj3jz4w.woff2") format("woff2");
+* {
+  font-family: 'Almarai', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
 }
 
 :root {
-  --background: #ffffff;
-  --foreground: #181e25;
-  --dark: #181e25;
-  --lime: #d6fd70;
-  --hero-blue: #63728f;
-  --soft-panel: #eef1f5;
-  --white-64: rgba(255, 255, 255, 0.64);
-  --glass-white: rgba(255, 255, 255, 0.16);
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: "Fiso Geist", Arial, Helvetica, sans-serif;
+  --background: #000000;
+  --foreground: #E1E0CC;
 }
 
 * {
   box-sizing: border-box;
+  padding: 0;
+  margin: 0;
 }
 
-html {
-  scroll-behavior: smooth;
-  background: var(--background);
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
 }
 
 body {
-  min-height: 100vh;
-  margin: 0;
-  background: var(--background);
   color: var(--foreground);
-  font-family: "Fiso Geist", Arial, Helvetica, sans-serif;
-}
-
-.hero-video {
-  object-fit: cover;
-  object-position: 50% 50%;
-  filter: brightness(0.72) contrast(1.1) saturate(1.02);
+  background: var(--background);
 }
 
 a {
+  color: inherit;
   text-decoration: none;
 }
 
-button,
-input {
-  font: inherit;
+/* SVG Noise Overlay for Hero Video */
+.noise-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  opacity: 0.7;
+  mix-blend-mode: overlay;
 }
 
-button {
-  cursor: pointer;
-}
-
-::selection {
-  background: var(--lime);
-  color: var(--dark);
-}
-
-@media (max-width: 809px) {
-  .hero-video {
-    object-fit: cover;
-    object-position: 50% 50%;
-  }
+/* Subtle Background Noise for Features Section */
+.bg-noise {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  opacity: 0.15;
 }
