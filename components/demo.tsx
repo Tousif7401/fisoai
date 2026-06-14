@@ -2,11 +2,10 @@
 
 import { PromptInputBox } from "@/components/ui/ai-prompt-box";
 
-export default function ChatPage() {
+const DemoOne = () => {
   const handleSendMessage = (message: string, files?: File[]) => {
     console.log('Message:', message);
     console.log('Files:', files);
-    // TODO: Implement actual chat functionality
   };
 
   return (
@@ -16,4 +15,6 @@ export default function ChatPage() {
       </div>
     </div>
   );
-}
+};
+
+export { DemoOne };
