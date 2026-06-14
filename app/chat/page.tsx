@@ -1,8 +1,12 @@
 "use client";
 
+import { useState } from 'react';
 import { PromptInputBox } from "@/components/ui/ai-prompt-box";
+import { Sidebar } from '@/components/Sidebar';
 
 export default function ChatPage() {
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+
   const handleSendMessage = (message: string, files?: File[]) => {
     console.log('Message:', message);
     console.log('Files:', files);
@@ -10,9 +14,26 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="flex w-full h-screen justify-center items-center bg-[radial-gradient(125%_125%_at_50%_101%,rgba(245,87,2,1)_10.5%,rgba(245,120,2,1)_16%,rgba(245,140,2,1)_17.5%,rgba(245,170,100,1)_25%,rgba(238,174,202,1)_40%,rgba(202,179,214,1)_65%,rgba(148,201,233,1)_100%)]">
-      <div className="p-4 w-[500px]">
-        <PromptInputBox onSend={handleSendMessage} />
+    <div
+      className="flex h-screen font-['Almarai']"
+      style={{
+        backgroundImage: "url('https://images.unsplash.com/photo-1519681393784-d120267933ba?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1124&q=100')",
+        backgroundPosition: 'center',
+        backgroundSize: 'cover',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
+      {/* Sidebar */}
+      <Sidebar
+        isCollapsed={isSidebarCollapsed}
+        onToggle={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+      />
+
+      {/* Main Content */}
+      <div className="flex-1 flex items-center justify-center">
+        <div className="p-4 w-[500px]">
+          <PromptInputBox onSend={handleSendMessage} />
+        </div>
       </div>
     </div>
   );
