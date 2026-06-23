@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { getUser, signOut } from '@/lib/supabase/auth'
 import type { User } from '@supabase/supabase-js'
 import { motion, AnimatePresence } from 'framer-motion'
-import { User, LogOut } from 'lucide-react'
+import { User as UserIcon, LogOut } from 'lucide-react'
 
 export function UserMenu() {
   const [user, setUser] = useState<User | null>(null)
@@ -53,7 +53,7 @@ export function UserMenu() {
         style={{ borderColor: 'rgba(222, 219, 200, 0.2)' }}
       >
         <div className="w-8 h-8 rounded-full bg-[#DEDBC8]/20 flex items-center justify-center">
-          <User className="w-4 h-4 text-[#E1E0CC]" />
+          <UserIcon className="w-4 h-4 text-[#E1E0CC]" />
         </div>
         <span className="text-sm text-[#E1E0CC]">
           {user.email?.split('@')[0]}

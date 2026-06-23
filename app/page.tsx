@@ -1,4 +1,5 @@
 import { Hero } from '@/components/Hero';
+import { SymbolFold } from '@/components/SymbolFold';
 import { Features } from '@/components/Features';
 import { Articles } from '@/components/Articles';
 import { About } from '@/components/About';
@@ -9,10 +10,11 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-black">
       <Hero />
+      <About />
       <Features />
       <Articles />
-      <About />
       <Donation />
+      <SymbolFold />
       <Footer />
     </main>
   );
