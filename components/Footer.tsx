@@ -3,12 +3,16 @@
 import { Github, Twitter, Mail } from 'lucide-react';
 import { TextHoverEffect, FooterBackgroundGradient } from './hover-footer';
 import { useInView } from 'framer-motion';
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 
 export function Footer() {
   const footerRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(footerRef, { once: false, amount: 0.3 });
-  const currentYear = new Date().getFullYear();
+  const [currentYear, setCurrentYear] = useState(2025);
+
+  useEffect(() => {
+    setCurrentYear(new Date().getFullYear());
+  }, []);
 
   const navLinks = [
     { label: 'About', href: '#about' },
