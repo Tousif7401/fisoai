@@ -12,7 +12,7 @@ export function Footer() {
 
   const navLinks = [
     { label: 'About', href: '#about' },
-    { label: 'Articles', href: '#articles' },
+    { label: 'Articles', href: '/articles' },
     { label: 'Chat', href: '#chat' },
     { label: 'Donate', href: '#donate' },
     { label: 'Resources', href: '#resources' },

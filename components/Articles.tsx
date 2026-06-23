@@ -4,31 +4,14 @@ import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
 import { ArrowRight, Clock } from 'lucide-react';
 import { WordsPullUp } from './animations';
+import { getFeaturedArticles } from '@/lib/articles';
+import Link from 'next/link';
 
 export function Articles() {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
 
-  const articles = [
-    {
-      title: 'Overcoming Imposter Syndrome as a Developer',
-      excerpt: 'That feeling that everyone else is better than you? You\'re not alone. Here\'s how to reframe those thoughts.',
-      readTime: '5 min read',
-      category: 'Self-worth'
-    },
-    {
-      title: 'Burnout Recovery: A Builder\'s Guide',
-      excerpt: 'When code feels like a burden and motivation has vanished. Practical steps to recover your spark.',
-      readTime: '7 min read',
-      category: 'Burnout'
-    },
-    {
-      title: 'Shipping Anxiety: Why We Fear Done',
-      excerpt: 'The perfectionism trap that keeps us polishing instead of shipping. How to embrace "good enough".',
-      readTime: '4 min read',
-      category: 'Productivity'
-    }
-  ];
+  const articles = getFeaturedArticles();
 
   const cardVariants = {
     hidden: { y: 30, opacity: 0 },
@@ -64,49 +47,61 @@ export function Articles() {
         {/* Articles Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           {articles.map((article, index) => (
-            <motion.article
-              key={article.title}
-              custom={index}
-              initial="hidden"
-              animate={isInView ? 'visible' : 'hidden'}
-              variants={cardVariants}
-              className="bg-[#101010] rounded-xl p-6 md:p-8 flex flex-col h-full hover:bg-[#1a1a1a] transition-colors"
-            >
-              {/* Category */}
-              <p
-                className="text-[10px] sm:text-xs uppercase tracking-wider mb-4"
-                style={{ color: '#DEDBC8' }}
+            <Link key={article.slug} href={`/articles/${article.slug}`} className="block">
+              <motion.article
+                custom={index}
+                initial="hidden"
+                animate={isInView ? 'visible' : 'hidden'}
+                variants={cardVariants}
+                className="bg-[#101010] rounded-xl p-6 md:p-8 flex flex-col h-full hover:bg-[#1a1a1a] transition-colors cursor-pointer relative group"
               >
-                {article.category}
-              </p>
-
-              {/* Title */}
-              <h3 className="text-lg sm:text-xl mb-3" style={{ color: '#E1E0CC' }}>
-                {article.title}
-              </h3>
-
-              {/* Excerpt */}
-              <p className="text-sm text-gray-400 mb-6 flex-1 leading-relaxed">
-                {article.excerpt}
-              </p>
-
-              {/* Footer with read time and link */}
-              <div className="flex items-center justify-between mt-auto">
-                <div className="flex items-center gap-1.5 text-xs text-gray-500">
-                  <Clock className="w-3 h-3" />
-                  <span>{article.readTime}</span>
-                </div>
-                <a
-                  href="#"
-                  className="inline-flex items-center gap-2 hover:gap-3 transition-all text-sm"
+                {/* Category */}
+                <p
+                  className="text-[10px] sm:text-xs uppercase tracking-wider mb-4"
                   style={{ color: '#DEDBC8' }}
                 >
-                  Read
-                  <ArrowRight className="w-4 h-4" strokeWidth={2} />
-                </a>
-              </div>
-            </motion.article>
+                  {article.category}
+                </p>
+
+                {/* Title */}
+                <h3 className="text-lg sm:text-xl mb-3" style={{ color: '#E1E0CC' }}>
+                  {article.title}
+                </h3>
+
+                {/* Excerpt */}
+                <p className="text-sm text-gray-400 mb-6 flex-1 leading-relaxed">
+                  {article.excerpt}
+                </p>
+
+                {/* Footer with read time and link */}
+                <div className="flex items-center justify-between mt-auto">
+                  <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                    <Clock className="w-3 h-3" />
+                    <span>{article.readTime}</span>
+                  </div>
+                  <span
+                    className="inline-flex items-center gap-2 text-sm group"
+                    style={{ color: '#DEDBC8' }}
+                  >
+                    Read
+                    <ArrowRight className="w-4 h-4 group-hover:-rotate-45 transition-transform duration-200" strokeWidth={2} />
+                  </span>
+                </div>
+              </motion.article>
+            </Link>
           ))}
+        </div>
+
+        {/* Browse All Link */}
+        <div className="mt-10 text-center">
+          <a
+            href="/articles"
+            className="inline-flex items-center gap-2 hover:gap-3 transition-all text-sm"
+            style={{ color: '#DEDBC8' }}
+          >
+            Browse all articles
+            <ArrowRight className="w-4 h-4" strokeWidth={2} />
+          </a>
         </div>
       </div>
     </section>
