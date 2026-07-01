@@ -4,6 +4,7 @@ import { Github, Twitter, Mail } from 'lucide-react';
 import { TextHoverEffect, FooterBackgroundGradient } from './hover-footer';
 import { useInView } from 'framer-motion';
 import { useRef, useState, useEffect } from 'react';
+import Link from 'next/link';
 
 export function Footer() {
   const footerRef = useRef<HTMLDivElement>(null);
@@ -15,17 +16,15 @@ export function Footer() {
   }, []);
 
   const navLinks = [
-    { label: 'About', href: '#about' },
+    { label: 'About', href: '/about' },
     { label: 'Articles', href: '/articles' },
-    { label: 'Chat', href: '#chat' },
-    { label: 'Donate', href: '#donate' },
-    { label: 'Resources', href: '#resources' },
+    { label: 'Chat', href: '/chat' },
   ];
 
   const socialLinks = [
-    { icon: Github, href: '#', label: 'GitHub' },
-    { icon: Twitter, href: '#', label: 'Twitter' },
-    { icon: Mail, href: 'mailto:hello@calmify.dev', label: 'Email' },
+    { icon: Github, href: 'https://github.com/Tousif7401', label: 'GitHub' },
+    { icon: Twitter, href: 'https://x.com/mohammed_t41990', label: 'Twitter' },
+    { icon: Mail, href: 'mailto:calmify.devteam@gmail.com', label: 'Email' },
   ];
 
   return (
@@ -152,7 +151,7 @@ export function Footer() {
             <ul className="space-y-3">
               {navLinks.map((link) => (
                 <li key={link.label}>
-                  <a
+                  <Link
                     href={link.href}
                     className="text-sm transition-colors"
                     style={{ color: '#999' }}
@@ -160,7 +159,7 @@ export function Footer() {
                     onMouseLeave={(e) => e.currentTarget.style.color = '#999'}
                   >
                     {link.label}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -174,15 +173,15 @@ export function Footer() {
             <ul className="space-y-4">
               <li className="flex items-center space-x-3">
                 <Mail size={18} style={{ color: '#DEDBC8' }} />
-                <a
-                  href="mailto:hello@calmify.dev"
+                <Link
+                  href="mailto:calmify.devteam@gmail.com"
                   className="text-sm transition-colors"
                   style={{ color: '#999' }}
                   onMouseEnter={(e) => e.currentTarget.style.color = '#E1E0CC'}
                   onMouseLeave={(e) => e.currentTarget.style.color = '#999'}
                 >
-                  hello@calmify.dev
-                </a>
+                  calmify.devteam@gmail.com
+                </Link>
               </li>
             </ul>
           </div>
@@ -196,10 +195,12 @@ export function Footer() {
               {socialLinks.map((social) => {
                 const Icon = social.icon;
                 return (
-                  <a
+                  <Link
                     key={social.label}
                     href={social.href}
                     aria-label={social.label}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-110"
                     style={{ backgroundColor: '#212121' }}
                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#DEDBC8'}
@@ -217,7 +218,7 @@ export function Footer() {
                         target.setAttribute('style', 'color: #E1E0CC');
                       }}
                     />
-                  </a>
+                  </Link>
                 );
               })}
             </div>
@@ -233,17 +234,19 @@ export function Footer() {
             {socialLinks.map(({ icon, label, href }) => {
               const Icon = icon;
               return (
-                <a
+                <Link
                   key={label}
                   href={href}
                   aria-label={label}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="transition-colors"
                   style={{ color: '#666' }}
                   onMouseEnter={(e) => e.currentTarget.style.color = '#DEDBC8'}
                   onMouseLeave={(e) => e.currentTarget.style.color = '#666'}
                 >
                   <Icon size={20} />
-                </a>
+                </Link>
               );
             })}
           </div>

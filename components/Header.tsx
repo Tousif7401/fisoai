@@ -1,17 +1,34 @@
 "use client";
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { Menu } from 'lucide-react';
 import { useState } from 'react';
 
 export function Header() {
   const pathname = usePathname();
+  const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const handleArticlesClick = () => {
+    setMobileMenuOpen(false);
+
+    if (pathname === '/') {
+      // On home page, scroll to articles section
+      const articlesSection = document.getElementById('articles');
+      if (articlesSection) {
+        articlesSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else {
+      // On other pages, navigate to articles page
+      router.push('/articles');
+    }
+  };
 
   const navItems = [
     { href: '/', label: 'Home' },
-    { href: '/articles', label: 'Articles' },
+    { href: '/about', label: 'About' },
+    { href: '/articles', label: 'Articles', isScrollLink: true },
     { href: '/chat', label: 'Chat' },
   ];
 
@@ -28,17 +45,27 @@ export function Header() {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-8">
             {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`text-sm transition-colors ${
-                  pathname === item.href
-                    ? 'text-[#E1E0CC]'
-                    : 'text-gray-400 hover:text-[#DEDBC8]'
-                }`}
-              >
-                {item.label}
-              </Link>
+              item.isScrollLink ? (
+                <button
+                  key={item.href}
+                  onClick={handleArticlesClick}
+                  className="text-sm transition-colors text-gray-400 hover:text-[#DEDBC8] cursor-pointer bg-transparent border-0"
+                >
+                  {item.label}
+                </button>
+              ) : (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`text-sm transition-colors ${
+                    pathname === item.href
+                      ? 'text-[#E1E0CC]'
+                      : 'text-gray-400 hover:text-[#DEDBC8]'
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              )
             ))}
           </nav>
 
@@ -56,18 +83,28 @@ export function Header() {
         {mobileMenuOpen && (
           <nav className="md:hidden py-4 border-t border-white/10">
             {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`block py-3 text-sm transition-colors ${
-                  pathname === item.href
-                    ? 'text-[#E1E0CC]'
-                    : 'text-gray-400 hover:text-[#DEDBC8]'
-                }`}
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                {item.label}
-              </Link>
+              item.isScrollLink ? (
+                <button
+                  key={item.href}
+                  onClick={handleArticlesClick}
+                  className="block w-full text-left py-3 text-sm transition-colors text-gray-400 hover:text-[#DEDBC8] cursor-pointer bg-transparent border-0"
+                >
+                  {item.label}
+                </button>
+              ) : (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`block py-3 text-sm transition-colors ${
+                    pathname === item.href
+                      ? 'text-[#E1E0CC]'
+                      : 'text-gray-400 hover:text-[#DEDBC8]'
+                  }`}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {item.label}
+                </Link>
+              )
             ))}
           </nav>
         )}

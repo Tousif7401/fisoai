@@ -3,8 +3,37 @@
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import { WordsPullUp } from './animations';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export function Hero() {
+  const router = useRouter();
+
+  const handleNavClick = (item: string) => {
+    if (item === 'Articles' || item === 'Resources') {
+      const articlesSection = document.getElementById('articles');
+      if (articlesSection) {
+        articlesSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else if (item === 'About') {
+      router.push('/about');
+    } else if (item === 'Chat') {
+      router.push('/chat');
+    } else if (item === 'Donate') {
+      const donateSection = document.getElementById('donate');
+      if (donateSection) {
+        donateSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
+
+  const handleReadArticlesClick = () => {
+    const articlesSection = document.getElementById('articles');
+    if (articlesSection) {
+      articlesSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   const navItems = [
     'About',
     'Articles',
@@ -37,9 +66,9 @@ export function Hero() {
           <ul className="flex items-center gap-2 sm:gap-3 md:gap-12 lg:gap-14">
             {navItems.map((item) => (
               <li key={item}>
-                <a
-                  href="#"
-                  className="text-[9px] sm:text-[10px] md:text-sm whitespace-nowrap"
+                <button
+                  onClick={() => handleNavClick(item)}
+                  className="text-[9px] sm:text-[10px] md:text-sm whitespace-nowrap bg-transparent border-0 cursor-pointer"
                   style={{
                     color: 'rgba(225, 224, 204, 0.8)',
                   }}
@@ -47,7 +76,7 @@ export function Hero() {
                   onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(225, 224, 204, 0.8)'}
                 >
                   {item}
-                </a>
+                </button>
               </li>
             ))}
           </ul>
@@ -122,8 +151,8 @@ export function Hero() {
                   </span>
                 </motion.a>
 
-                <motion.a
-                  href="#donate"
+                <motion.button
+                  onClick={handleReadArticlesClick}
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{
@@ -131,7 +160,7 @@ export function Hero() {
                     ease: [0.16, 1, 0.3, 1],
                     delay: 0.8,
                   }}
-                  className="group flex items-center gap-2 rounded-full px-3 py-1.5 sm:px-4 sm:py-2 text-black font-medium text-[11px] sm:text-xs md:text-sm hover:gap-3 transition-all w-fit"
+                  className="group flex items-center gap-2 rounded-full px-3 py-1.5 sm:px-4 sm:py-2 text-black font-medium text-[11px] sm:text-xs md:text-sm hover:gap-3 transition-all w-fit cursor-pointer border-0"
                   style={{ backgroundColor: '#FFFFFF' }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.backgroundColor = '#999';
@@ -160,7 +189,7 @@ export function Hero() {
                   <span className="bg-black rounded-full w-5 h-5 sm:w-7 sm:h-7 md:w-8 md:h-8 flex items-center justify-center group-hover:scale-110 transition-transform">
                     <ArrowRight className="w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-3.5 md:h-3.5 text-[#E1E0CC]" strokeWidth={2} />
                   </span>
-                </motion.a>
+                </motion.button>
               </div>
             </div>
           </div>
