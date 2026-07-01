@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useInView } from 'framer-motion';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { ArrowRight, Clock } from 'lucide-react';
 import { WordsPullUp } from './animations';
 import { getFeaturedArticles } from '@/lib/articles';
@@ -10,6 +10,7 @@ import Link from 'next/link';
 export function Articles() {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   const articles = getFeaturedArticles();
 
@@ -27,7 +28,7 @@ export function Articles() {
   };
 
   return (
-    <section ref={ref} className="min-h-screen bg-black py-20 md:py-32 px-4 md:px-6 relative">
+    <section ref={ref} id="articles" className="min-h-screen bg-black py-20 md:py-32 px-4 md:px-6 relative">
       {/* Background Noise */}
       <div className="absolute inset-0 bg-noise opacity-[0.15] pointer-events-none" />
 
@@ -46,50 +47,62 @@ export function Articles() {
 
         {/* Articles Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-          {articles.map((article, index) => (
-            <Link key={article.slug} href={`/articles/${article.slug}`} className="block">
-              <motion.article
-                custom={index}
-                initial="hidden"
-                animate={isInView ? 'visible' : 'hidden'}
-                variants={cardVariants}
-                className="bg-[#101010] rounded-xl p-6 md:p-8 flex flex-col h-full hover:bg-[#1a1a1a] transition-colors cursor-pointer relative group"
-              >
-                {/* Category */}
-                <p
-                  className="text-[10px] sm:text-xs uppercase tracking-wider mb-4"
+          {articles.map((article, index) => {
+            const isHovered = hoveredIndex === index;
+            const isDimmed = hoveredIndex !== null && hoveredIndex !== index;
+
+            return (
+              <Link key={article.slug} href={`/articles/${article.slug}`} className="block">
+                <motion.article
+                  custom={index}
+                  initial="hidden"
+                  animate={isInView ? 'visible' : 'hidden'}
+                  variants={cardVariants}
+                  onMouseEnter={() => setHoveredIndex(index)}
+                  onMouseLeave={() => setHoveredIndex(null)}
+                  className={`
+                    rounded-xl p-6 md:p-8 flex flex-col h-full cursor-pointer relative group
+                    bg-white/5 backdrop-blur-xl transform-gpu
+                    [border:1px_solid_rgba(255,255,255,.15)] [box-shadow:0_4px_16px_0_rgba(0,0,0,.2)]
+                    hover:bg-white/10 hover:[border:1px_solid_rgba(255,255,255,.25)]
+                    transition-all duration-300 ease-out
+                    ${isDimmed ? 'blur-sm scale-[0.98]' : ''}
+                  `}
                   style={{ color: '#DEDBC8' }}
                 >
-                  {article.category}
-                </p>
+                  {/* Category */}
+                  <p className="text-[10px] sm:text-xs uppercase tracking-wider mb-4 px-2 py-1 rounded bg-white/10 inline-block w-fit">
+                    {article.category}
+                  </p>
 
-                {/* Title */}
-                <h3 className="text-lg sm:text-xl mb-3" style={{ color: '#E1E0CC' }}>
-                  {article.title}
-                </h3>
+                  {/* Title */}
+                  <h3 className="text-lg sm:text-xl mb-3 group-hover:text-[#DEDBC8] transition-colors" style={{ color: '#E1E0CC' }}>
+                    {article.title}
+                  </h3>
 
-                {/* Excerpt */}
-                <p className="text-sm text-gray-400 mb-6 flex-1 leading-relaxed">
-                  {article.excerpt}
-                </p>
+                  {/* Excerpt */}
+                  <p className="text-sm text-gray-400 mb-6 flex-1 leading-relaxed">
+                    {article.excerpt}
+                  </p>
 
-                {/* Footer with read time and link */}
-                <div className="flex items-center justify-between mt-auto">
-                  <div className="flex items-center gap-1.5 text-xs text-gray-500">
-                    <Clock className="w-3 h-3" />
-                    <span>{article.readTime}</span>
+                  {/* Footer with read time and link */}
+                  <div className="flex items-center justify-between mt-auto">
+                    <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                      <Clock className="w-3 h-3" />
+                      <span>{article.readTime}</span>
+                    </div>
+                    <span
+                      className="inline-flex items-center gap-2 text-sm"
+                      style={{ color: '#DEDBC8' }}
+                    >
+                      Read
+                      <ArrowRight className="w-4 h-4 group-hover:-rotate-45 transition-transform duration-200" strokeWidth={2} />
+                    </span>
                   </div>
-                  <span
-                    className="inline-flex items-center gap-2 text-sm group"
-                    style={{ color: '#DEDBC8' }}
-                  >
-                    Read
-                    <ArrowRight className="w-4 h-4 group-hover:-rotate-45 transition-transform duration-200" strokeWidth={2} />
-                  </span>
-                </div>
-              </motion.article>
-            </Link>
-          ))}
+                </motion.article>
+              </Link>
+            );
+          })}
         </div>
 
         {/* Browse All Link */}

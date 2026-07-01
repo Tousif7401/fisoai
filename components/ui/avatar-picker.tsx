@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
+import { Camera } from "lucide-react";
 
 interface Avatar {
     id: number;
@@ -14,6 +15,11 @@ interface Avatar {
 interface AvatarPickerProps {
     onAvatarSelect?: (avatar: Avatar) => void;
     initialAvatar?: Avatar;
+    uploadedImage?: string | null;
+    avatarUrl?: string | null;
+    profileName?: string;
+    isUploading?: boolean;
+    onUploadClick?: () => void;
 }
 
 const avatars: Avatar[] = [
@@ -267,6 +273,9 @@ const avatars: Avatar[] = [
     },
 ];
 
+// Export avatars array for use in other components
+export const avatarList = avatars;
+
 // Add these animation variants at the top level
 const mainAvatarVariants = {
     initial: {
@@ -342,14 +351,47 @@ const selectedVariants = {
     },
 };
 
-export function AvatarPicker({ onAvatarSelect, initialAvatar }: AvatarPickerProps) {
+export function AvatarPicker({
+    onAvatarSelect,
+    initialAvatar,
+    uploadedImage,
+    avatarUrl,
+    profileName = "User",
+    isUploading = false,
+    onUploadClick
+}: AvatarPickerProps) {
     const [selectedAvatar, setSelectedAvatar] = useState<Avatar>(initialAvatar || avatars[0]);
     const [rotationCount, setRotationCount] = useState(0);
+
+    // Update selectedAvatar when initialAvatar changes (e.g., after profile fetch)
+    useEffect(() => {
+        if (initialAvatar) {
+            setSelectedAvatar(initialAvatar);
+        }
+    }, [initialAvatar]);
 
     const handleAvatarSelect = (avatar: Avatar) => {
         setRotationCount((prev) => prev + 1080); // Add 3 rotations each time
         setSelectedAvatar(avatar);
         onAvatarSelect?.(avatar);
+    };
+
+    // Determine what to show in the main avatar circle
+    const getAvatarContent = () => {
+        // Priority: upload preview > picker avatar > Gmail photo > initials
+        if (uploadedImage) {
+            return <img src={uploadedImage} alt="Preview" className="w-full h-full object-cover" />;
+        }
+        // If initialAvatar exists, user has selected a picker avatar
+        if (initialAvatar) {
+            return selectedAvatar.svg;
+        }
+        // Fall back to Gmail/OAuth photo
+        if (avatarUrl) {
+            return <img src={avatarUrl} alt={profileName} className="w-full h-full object-cover" />;
+        }
+        // Default to selected avatar from grid
+        return selectedAvatar.svg;
     };
 
     return (
@@ -374,25 +416,48 @@ export function AvatarPicker({ onAvatarSelect, initialAvatar }: AvatarPickerProp
                     />
 
                     <div className="px-6 pb-6 -mt-12">
-                        {/* Main avatar display */}
-                        <motion.div
-                            className="relative w-24 h-24 mx-auto rounded-full overflow-hidden border-4 bg-[#1F2023] border-white/20 flex items-center justify-center shadow-xl"
-                            variants={mainAvatarVariants}
-                            layoutId="selectedAvatar"
-                        >
+                        {/* Main avatar display with camera icon */}
+                        <div className="flex flex-col items-center gap-4">
                             <motion.div
-                                className="w-full h-full flex items-center justify-center"
-                                animate={{
-                                    rotate: rotationCount,
-                                }}
-                                transition={{
-                                    duration: 0.8,
-                                    ease: [0.4, 0, 0.2, 1],
-                                }}
+                                className="relative group"
+                                variants={mainAvatarVariants}
                             >
-                                {selectedAvatar.svg}
+                                {/* Avatar Circle */}
+                                <motion.div
+                                    className="relative w-24 h-24 mx-auto rounded-full overflow-hidden border-4 bg-[#1F2023] border-white/20 flex items-center justify-center shadow-xl"
+                                    layoutId="selectedAvatar"
+                                >
+                                    {isUploading && (
+                                        <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center z-10">
+                                            <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                        </div>
+                                    )}
+                                    <motion.div
+                                        className="w-full h-full flex items-center justify-center"
+                                        animate={{
+                                            rotate: rotationCount,
+                                        }}
+                                        transition={{
+                                            duration: 0.8,
+                                            ease: [0.4, 0, 0.2, 1],
+                                        }}
+                                    >
+                                        {getAvatarContent()}
+                                    </motion.div>
+                                </motion.div>
+
+                                {/* Camera Icon - Shows on Hover */}
+                                {onUploadClick && (
+                                    <button
+                                        onClick={onUploadClick}
+                                        disabled={isUploading}
+                                        className="absolute bottom-0 right-0 w-8 h-8 bg-[#E1E0CC] rounded-full flex items-center justify-center border-2 border-[#1F2023] hover:scale-110 transition-transform disabled:opacity-50 z-20"
+                                    >
+                                        <Camera className="w-4 h-4 text-[#1F2023]" />
+                                    </button>
+                                )}
                             </motion.div>
-                        </motion.div>
+                        </div>
 
                         {/* Username display */}
                         <motion.div
@@ -419,6 +484,7 @@ export function AvatarPicker({ onAvatarSelect, initialAvatar }: AvatarPickerProp
 
                         {/* Avatar selection */}
                         <motion.div
+                            id="avatar-selection-section"
                             className="mt-4"
                             variants={pickerVariants.container}
                         >

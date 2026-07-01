@@ -5,8 +5,11 @@ import { motion } from "framer-motion";
 import { Clock, Calendar, ArrowRight } from "lucide-react";
 import { articles } from "@/lib/articles";
 import Link from "next/link";
+import { useState } from "react";
 
 export default function ArticleBentoGrid() {
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
   return (
     <div className="pt-32 container mx-auto min-w-screen flex flex-col px-4 md:px-6 pb-20">
       <h1 className="font-medium tracking-tight text-4xl md:text-6xl text-[#E1E0CC]">
@@ -28,6 +31,9 @@ export default function ArticleBentoGrid() {
             }
             className="max-lg:rounded-t-4xl lg:col-span-2 lg:rounded-tl-4xl"
             slug="overcoming-imposter-syndrome"
+            index={0}
+            hoveredIndex={hoveredIndex}
+            setHoveredIndex={setHoveredIndex}
           />
         </Link>
         <Link key="burnout-recovery-builders-guide" href="/articles/burnout-recovery-builders-guide" className="block">
@@ -41,6 +47,9 @@ export default function ArticleBentoGrid() {
             }
             className="lg:col-span-2 lg:rounded-tr-4xl"
             slug="burnout-recovery-builders-guide"
+            index={1}
+            hoveredIndex={hoveredIndex}
+            setHoveredIndex={setHoveredIndex}
           />
         </Link>
         <Link key="shipping-anxiety-why-we-fear-done" href="/articles/shipping-anxiety-why-we-fear-done" className="block">
@@ -54,6 +63,9 @@ export default function ArticleBentoGrid() {
             }
             className="lg:col-span-2"
             slug="shipping-anxiety-why-we-fear-done"
+            index={2}
+            hoveredIndex={hoveredIndex}
+            setHoveredIndex={setHoveredIndex}
           />
         </Link>
         <Link key="context-switching-is-killing-creativity" href="/articles/context-switching-is-killing-creativity" className="block">
@@ -67,6 +79,9 @@ export default function ArticleBentoGrid() {
             }
             className="lg:col-span-2 lg:rounded-bl-4xl"
             slug="context-switching-is-killing-creativity"
+            index={3}
+            hoveredIndex={hoveredIndex}
+            setHoveredIndex={setHoveredIndex}
           />
         </Link>
         <Link key="lost-your-spark-its-not-discipline-its-rest" href="/articles/lost-your-spark-its-not-discipline-its-rest" className="block">
@@ -80,6 +95,9 @@ export default function ArticleBentoGrid() {
             }
             className="lg:col-span-2"
             slug="lost-your-spark-its-not-discipline-its-rest"
+            index={4}
+            hoveredIndex={hoveredIndex}
+            setHoveredIndex={setHoveredIndex}
           />
         </Link>
         <div className="lg:col-span-6 flex justify-center">
@@ -102,6 +120,9 @@ export function ArticleBentoCard({
   graphic,
   fade = [],
   slug,
+  index,
+  hoveredIndex,
+  setHoveredIndex,
 }: {
   dark?: boolean;
   className?: string;
@@ -112,18 +133,27 @@ export function ArticleBentoCard({
   graphic?: React.ReactNode;
   fade?: ("top" | "bottom")[];
   slug: string;
+  index: number;
+  hoveredIndex: number | null;
+  setHoveredIndex: React.Dispatch<React.SetStateAction<number | null>>;
 }) {
+  const isHovered = hoveredIndex === index;
+  const isDimmed = hoveredIndex !== null && hoveredIndex !== index;
+
   return (
     <motion.div
       initial="idle"
       whileHover="active"
       variants={{ idle: {}, active: {} }}
       data-dark={dark ? "true" : undefined}
+      onMouseEnter={() => setHoveredIndex(index)}
+      onMouseLeave={() => setHoveredIndex(null)}
       className={clsx(
         className,
-        "group relative flex flex-col overflow-hidden rounded-lg cursor-pointer",
+        "group relative flex flex-col overflow-hidden rounded-lg cursor-pointer transition-all duration-300 ease-out",
         "bg-white/5 backdrop-blur-2xl transform-gpu [border:1px_solid_rgba(255,255,255,.15)] [box-shadow:0_4px_16px_0_rgba(0,0,0,.2)]",
-        "hover:bg-white/10 hover:[border:1px_solid_rgba(255,255,255,.25)] transition-all"
+        "hover:bg-white/10 hover:[border:1px_solid_rgba(255,255,255,.25)]",
+        isDimmed && "blur-sm scale-[0.98]"
       )}
     >
       {/* Arrow indicator in top-right - always visible */}
