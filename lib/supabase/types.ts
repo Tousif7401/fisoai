@@ -13,8 +13,9 @@ export interface Conversation {
   id: string
   user_id: string
   title?: string
-  mood?: 'Low' | 'Anxious' | 'Okay' | 'Good' | 'Great'
+  pinned: boolean
   created_at: string
+  updated_at: string
 }
 
 export interface Message {
@@ -22,14 +23,13 @@ export interface Message {
   conversation_id: string
   role: 'user' | 'assistant'
   content: string
-  created_at: string
-}
-
-export interface MoodCheckIn {
-  id: string
-  user_id: string
-  mood: 'Low' | 'Anxious' | 'Okay' | 'Good' | 'Great'
-  note?: string
+  article_suggestion?: {
+    slug: string
+    title: string
+    excerpt: string
+    readTime: string
+    category: string
+  }
   created_at: string
 }
 

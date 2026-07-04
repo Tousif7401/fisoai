@@ -101,12 +101,20 @@ export function Features() {
         {/* Expandable Gallery */}
         {/* Mobile: Vertical stack, Desktop: Horizontal expandable */}
         <div className="flex md:flex gap-3 md:gap-3 w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-3">
-          {features.map((feature, index) => (
+          {features.map((feature, index) => {
+            const isDimmed = hoveredIndex !== null && hoveredIndex !== index;
+            return (
             <motion.div
               key={feature.title}
               className="relative cursor-pointer overflow-hidden rounded-2xl h-[450px] sm:h-[350px] md:h-[400px] lg:h-[480px]"
-              style={{ flex: '1 1 0%' }}
-              animate={{ flex: hoveredIndex === index ? 2.5 : hoveredIndex === null ? 1 : 0.8 }}
+              style={{
+                flex: '1 1 0%',
+                filter: isDimmed ? 'blur(4px)' : 'blur(0px)',
+              }}
+              animate={{
+                flex: hoveredIndex === index ? 2.5 : hoveredIndex === null ? 1 : 0.8,
+                scale: isDimmed ? 0.98 : 1,
+              }}
               transition={{ duration: 0.5, ease: 'easeInOut' }}
               onMouseEnter={() => setHoveredIndex(index)}
               onMouseLeave={() => setHoveredIndex(null)}
@@ -249,7 +257,8 @@ export function Features() {
                 </AnimatePresence>
               </div>
             </motion.div>
-          ))}
+            );
+          })}
         </div>
       </div>
 

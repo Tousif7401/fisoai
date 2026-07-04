@@ -2,28 +2,28 @@
 
 import { motion, useInView } from 'framer-motion';
 import { useRef, useState, useCallback } from 'react';
-import { ArrowRight, CheckCircle2, XCircle, Loader2 } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Loader2 } from 'lucide-react';
 import { WordsPullUp } from './animations';
 import BorderGlow from './ui/BorderGlow';
 import { initializeRazorpay, rupeesToPaise } from '@/lib/razorpay';
+import { useToast } from '@/components/ui/toast';
 import Image from 'next/image';
 
 export function Donation() {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
+  const { showSuccess, showError } = useToast();
 
   // Payment states
   const [isLoading, setIsLoading] = useState(false);
-  const [paymentStatus, setPaymentStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [paymentStatus, setPaymentStatus] = useState<'idle' | 'success'>('idle');
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
   const [customAmount, setCustomAmount] = useState<string>('');
-  const [errorMessage, setErrorMessage] = useState<string>('');
 
   // Handle payment
   const handlePayment = useCallback(async (amount: number) => {
     setIsLoading(true);
     setPaymentStatus('idle');
-    setErrorMessage('');
 
     try {
       // Create order on server
@@ -95,26 +95,33 @@ export function Donation() {
         {
           onSuccess: (response) => {
             console.log('Payment successful:', response);
+            showSuccess('Thank you for your donation! 💛', 5000);
             setPaymentStatus('success');
             setIsLoading(false);
             setSelectedAmount(null);
             setCustomAmount('');
           },
           onError: (error) => {
-            console.error('Payment failed:', error);
-            setPaymentStatus('error');
-            setErrorMessage(error.description || 'Payment failed. Please try again.');
+            // Show toast for all error cases (including user cancellation)
+            const isUserCancelled = error?.reason === 'user_cancelled';
+
+            if (isUserCancelled) {
+              // User closed the modal - show gentle info message
+              showError('Payment cancelled. You can try again anytime.');
+            } else {
+              // Actual payment failure
+              showError(error.description || 'Payment failed. Please try again.');
+            }
             setIsLoading(false);
           },
         }
       );
     } catch (error) {
       console.error('Payment error:', error);
-      setPaymentStatus('error');
-      setErrorMessage(error instanceof Error ? error.message : 'Something went wrong');
+      showError(error instanceof Error ? error.message : 'Something went wrong. Please try again.');
       setIsLoading(false);
     }
-  }, []);
+  }, [showSuccess, showError]);
 
   // Handle preset amount click
   const handlePresetClick = (amountStr: string) => {
@@ -127,17 +134,10 @@ export function Donation() {
   const handleCustomDonate = () => {
     const amount = parseInt(customAmount);
     if (!amount || amount < 1) {
-      setErrorMessage('Please enter a valid amount');
-      setPaymentStatus('error');
+      showError('Please enter a valid amount (minimum ₹1)');
       return;
     }
     handlePayment(amount);
-  };
-
-  // Reset status
-  const resetStatus = () => {
-    setPaymentStatus('idle');
-    setErrorMessage('');
   };
 
   const containerVariants = {
@@ -218,38 +218,6 @@ export function Donation() {
           >
             Calmify is and will always be free. Your donation helps cover API costs and keeps mental health support accessible to every developer who needs it.
           </motion.p>
-
-          {/* Success Message */}
-          {paymentStatus === 'success' && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="mb-8 p-6 rounded-2xl bg-green-500/10 border border-green-500/20"
-            >
-              <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto mb-3" />
-              <h3 className="text-xl font-semibold text-green-400 mb-2">Thank You!</h3>
-              <p className="text-sm text-green-300">Your donation helps keep Calmify free for everyone. 💛</p>
-            </motion.div>
-          )}
-
-          {/* Error Message */}
-          {paymentStatus === 'error' && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="mb-8 p-6 rounded-2xl bg-red-500/10 border border-red-500/20"
-            >
-              <XCircle className="w-12 h-12 text-red-500 mx-auto mb-3" />
-              <h3 className="text-xl font-semibold text-red-400 mb-2">Payment Failed</h3>
-              <p className="text-sm text-red-300 mb-3">{errorMessage}</p>
-              <button
-                onClick={resetStatus}
-                className="text-sm text-red-400 underline hover:text-red-300 transition-colors"
-              >
-                Try Again
-              </button>
-            </motion.div>
-          )}
 
           {/* Loading State */}
           {isLoading && (

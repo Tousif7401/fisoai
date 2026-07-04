@@ -172,7 +172,16 @@ export function Footer() {
             </h4>
             <ul className="space-y-4">
               <li className="flex items-center space-x-3">
-                <Mail size={18} style={{ color: '#DEDBC8' }} />
+                <Link
+                  href="mailto:calmify.devteam@gmail.com"
+                  className="transition-colors"
+                  style={{ color: '#DEDBC8' }}
+                  onMouseEnter={(e) => e.currentTarget.style.color = '#E1E0CC'}
+                  onMouseLeave={(e) => e.currentTarget.style.color = '#DEDBC8'}
+                  aria-label="Send email"
+                >
+                  <Mail size={18} />
+                </Link>
                 <Link
                   href="mailto:calmify.devteam@gmail.com"
                   className="text-sm transition-colors"
@@ -228,7 +237,7 @@ export function Footer() {
         <hr className="border-t my-4" style={{ borderColor: '#333' }} />
 
         {/* Footer bottom */}
-        <div className="flex flex-col md:flex-row justify-between items-center text-sm space-y-4 md:space-y-0 mt-1">
+        <div className="flex flex-col md:flex-row justify-between items-center text-sm space-y-4 md:space-y-0 mt-1 relative z-[60]">
           {/* Social icons - duplicate for bottom row */}
           <div className="flex space-x-6">
             {socialLinks.map(({ icon, label, href }) => {
@@ -240,7 +249,7 @@ export function Footer() {
                   aria-label={label}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="transition-colors"
+                  className="transition-colors relative z-[60]"
                   style={{ color: '#666' }}
                   onMouseEnter={(e) => e.currentTarget.style.color = '#DEDBC8'}
                   onMouseLeave={(e) => e.currentTarget.style.color = '#666'}
@@ -264,7 +273,7 @@ export function Footer() {
       </div>
 
       {/* Text hover effect */}
-      <div ref={footerRef} className="lg:flex hidden h-[30rem] -mt-52 -mb-36">
+      <div ref={footerRef} className="lg:flex hidden h-[30rem] -mt-52 -mb-36 pointer-events-none">
         {isInView && <TextHoverEffect text="Calmify" className="z-50" />}
       </div>
 
