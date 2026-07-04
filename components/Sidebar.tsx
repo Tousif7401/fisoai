@@ -4,12 +4,13 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import * as TooltipPrimitive from '@radix-ui/react-tooltip';
 import { createPortal } from 'react-dom';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import {
   Plus,
   PanelLeftClose,
   PanelLeftOpen,
   BookOpen,
+  MessageSquare,
   History,
   User,
   LogOut,
@@ -20,6 +21,7 @@ import {
 } from 'lucide-react';
 import { AvatarPicker, avatarList } from '@/components/ui/avatar-picker';
 import { HelpModal } from '@/components/HelpModal';
+import ConversationList from '@/components/ConversationList';
 import { signOut, getProfile } from '@/lib/supabase/auth';
 import { createBrowserClient } from '@supabase/ssr';
 
@@ -56,6 +58,7 @@ TooltipContent.displayName = TooltipPrimitive.TooltipContent.displayName;
 interface SidebarProps {
   isCollapsed?: boolean;
   onToggle: () => void;
+  currentConversationId?: string | null;
 }
 
 interface MenuItem {
@@ -66,9 +69,9 @@ interface MenuItem {
   onClick?: () => void;
 }
 
-export function Sidebar({ isCollapsed = false, onToggle }: SidebarProps) {
+export function Sidebar({ isCollapsed = false, onToggle, currentConversationId }: SidebarProps) {
   const router = useRouter();
-  const [activeItem, setActiveItem] = useState('new-chat');
+  const pathname = usePathname();
   const [isLogoHovered, setIsLogoHovered] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [tooltip, setTooltip] = useState<{ text: string; x: number; y: number } | null>(null);
@@ -147,19 +150,26 @@ export function Sidebar({ isCollapsed = false, onToggle }: SidebarProps) {
   };
 
   const menuItems: MenuItem[] = [
-    { icon: Plus, label: 'New chat', onClick: () => console.log('New chat') },
-    { icon: BookOpen, label: 'Articles' },
-    { icon: History, label: 'History' },
+    {
+      icon: Plus,
+      label: 'New chat',
+      onClick: () => {
+        // Check if already on /chat/new to avoid unnecessary action
+        if (window.location.pathname === '/chat/new') return;
+        // Dispatch custom event that the chat page listens to
+        window.dispatchEvent(new CustomEvent('new-chat-request'));
+        // Also update URL to match (for visual consistency)
+        if (window.location.pathname !== '/chat/new') {
+          window.history.pushState({}, '', '/chat/new');
+        }
+      }
+    },
+    { icon: BookOpen, label: 'Articles', onClick: () => router.push('/articles') },
   ];
 
   const handleMenuClick = (item: MenuItem) => {
-    if (item.label === 'New chat') {
-      setActiveItem('new-chat');
-    } else if (item.label === 'Articles') {
-      setActiveItem('articles');
-    } else if (item.label === 'History') {
-      setActiveItem('history');
-    } else if (item.onClick) {
+    // Just call onClick - router will handle navigation
+    if (item.onClick) {
       item.onClick();
     }
   };
@@ -268,11 +278,33 @@ export function Sidebar({ isCollapsed = false, onToggle }: SidebarProps) {
       animate={{ width: isCollapsed ? 61 : 240 }}
       transition={{ duration: 0.3, ease: 'easeInOut' }}
       className={cn(
-        "flex flex-col h-screen overflow-hidden relative font-['Almarai']",
+        "flex flex-col h-screen overflow-hidden relative font-['Almarai'] scrollbar-transparent",
         !isCollapsed && "backdrop-blur-xl bg-white/10",
         isCollapsed && "bg-transparent"
       )}
     >
+      <style>{`
+        /* Hide scrollbar by default - use width: 0 to completely hide */
+        .scrollbar-transparent::-webkit-scrollbar,
+        .scrollbar-transparent *::-webkit-scrollbar {
+          width: 0;
+          transition: width 0.2s ease;
+        }
+        .scrollbar-transparent::-webkit-scrollbar-track,
+        .scrollbar-transparent *::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .scrollbar-transparent::-webkit-scrollbar-thumb,
+        .scrollbar-transparent *::-webkit-scrollbar-thumb {
+          background-color: rgba(0, 0, 0, 0.2);
+          border-radius: 3px;
+        }
+        /* Show scrollbar on hover */
+        .scrollbar-transparent:hover::-webkit-scrollbar,
+        .scrollbar-transparent:hover *::-webkit-scrollbar {
+          width: 6px;
+        }
+      `}</style>
       <TooltipProvider>
       {/* Menu Items */}
       <div className="flex-1 overflow-y-auto overflow-x-hidden relative z-10 p-2 space-y-1">
@@ -336,7 +368,9 @@ export function Sidebar({ isCollapsed = false, onToggle }: SidebarProps) {
         </div>
             {menuItems.map((item) => {
               const Icon = item.icon;
-              const isActive = activeItem === item.label.toLowerCase();
+              // Derive active state from pathname
+              const isActive = pathname === '/chat/new' && item.label === 'New chat' ||
+                               pathname === '/articles' && item.label === 'Articles';
               const isSpecial = item.label === 'New chat';
 
               return (
@@ -381,7 +415,10 @@ export function Sidebar({ isCollapsed = false, onToggle }: SidebarProps) {
                 </motion.button>
               );
             })}
-        </div>
+
+            {/* Conversation List */}
+            <ConversationList currentConversationId={currentConversationId} isCollapsed={isCollapsed} />
+          </div>
 
       {/* Footer - User Profile */}
       <div className="p-2 relative">
