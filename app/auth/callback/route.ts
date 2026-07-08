@@ -14,14 +14,38 @@ export async function GET(request: Request) {
       // Debug: Log user metadata
       console.log('User metadata:', data.user.user_metadata)
 
+      // Check if profile already exists (including email field)
+      const { data: existingProfile } = await supabase
+        .from('profiles')
+        .select('avatar_url, avatar_id, email')
+        .eq('id', data.user.id)
+        .single()
+
       // Prioritize GitHub avatar_url over Google picture
       const avatarUrl = data.user.user_metadata.avatar_url || data.user.user_metadata.picture || null
 
+      // Get email from Supabase auth user (available for both Google and GitHub)
+      // GitHub users may have null email if they didn't make it public
+      const userEmail = data.user.email || null
+
       // Create or update user profile with OAuth metadata
-      const profileData = {
+      const profileData: any = {
         id: data.user.id,
         full_name: data.user.user_metadata.full_name || data.user.user_metadata.name || data.user.user_metadata.user_name,
-        avatar_url: avatarUrl,
+      }
+
+      // Only set avatar_url if user doesn't already have an avatar (either uploaded or selected from picker)
+      // This preserves user's avatar selection on subsequent logins
+      if (!existingProfile || (!existingProfile.avatar_url && !existingProfile.avatar_id)) {
+        profileData.avatar_url = avatarUrl
+      }
+
+      // Only set email if:
+      // 1. Profile doesn't exist, OR
+      // 2. Email is null (user hasn't manually set it)
+      // This preserves user's manual email updates
+      if (!existingProfile || !existingProfile.email) {
+        profileData.email = userEmail
       }
 
       console.log('Saving profile data:', profileData)
