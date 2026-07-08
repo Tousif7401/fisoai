@@ -82,14 +82,16 @@ export function Sidebar({ isCollapsed = false, onToggle, currentConversationId }
   const [dropdownPosition, setDropdownPosition] = useState({ x: 0, y: 0 });
   const profileButtonRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [profileName, setProfileName] = useState('Mohammed Tousif');
+  const [profileName, setProfileName] = useState('Your Profile');
   const [profileEmail, setProfileEmail] = useState('mohammed@example.com');
   const [profilePhoto, setProfilePhoto] = useState('M');
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [savedAvatarSvg, setSavedAvatarSvg] = useState<React.ReactNode>(null);
   const [currentSelectedAvatar, setCurrentSelectedAvatar] = useState<any>(null);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+  const [fileToUpload, setFileToUpload] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [hasNewUpload, setHasNewUpload] = useState(false);
   const [showDeleteAccountConfirm, setShowDeleteAccountConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -123,10 +125,42 @@ export function Sidebar({ isCollapsed = false, onToggle, currentConversationId }
   // Initialize temp values when modal opens
   useEffect(() => {
     if (showProfileModal) {
-      setTempProfileName(profileName);
-      setTempProfileEmail(profileEmail);
+      // Reload profile from database to get latest state
+      const reloadProfile = async () => {
+        const profile = await getProfile();
+        if (profile) {
+          setProfileName(profile.full_name || 'User');
+          setProfileEmail(profile.email || '');
+          setTempProfileName(profile.full_name || 'User');
+          setTempProfileEmail(profile.email || '');
+
+          // Reset avatar states based on database
+          if (profile.avatar_url) {
+            setAvatarUrl(profile.avatar_url);
+            setCurrentSelectedAvatar(null);
+            setSavedAvatarSvg(null);
+          } else if (profile.avatar_id) {
+            const avatar = avatarList.find(a => a.id === profile.avatar_id);
+            if (avatar) {
+              setCurrentSelectedAvatar(avatar);
+              setSavedAvatarSvg(avatar.svg);
+              setAvatarUrl(null);
+            }
+          } else {
+            // No avatar set
+            setCurrentSelectedAvatar(null);
+            setSavedAvatarSvg(null);
+            setAvatarUrl(null);
+          }
+        }
+      };
+
+      setHasNewUpload(false);
+      setUploadedImage(null);
+      setFileToUpload(null);
+      reloadProfile();
     }
-  }, [showProfileModal, profileName, profileEmail]);
+  }, [showProfileModal]);
 
   useEffect(() => {
     setMounted(true);
@@ -154,14 +188,8 @@ export function Sidebar({ isCollapsed = false, onToggle, currentConversationId }
       icon: Plus,
       label: 'New chat',
       onClick: () => {
-        // Check if already on /chat/new to avoid unnecessary action
-        if (window.location.pathname === '/chat/new') return;
         // Dispatch custom event that the chat page listens to
         window.dispatchEvent(new CustomEvent('new-chat-request'));
-        // Also update URL to match (for visual consistency)
-        if (window.location.pathname !== '/chat/new') {
-          window.history.pushState({}, '', '/chat/new');
-        }
       }
     },
     { icon: BookOpen, label: 'Articles', onClick: () => router.push('/articles') },
@@ -195,56 +223,19 @@ export function Sidebar({ isCollapsed = false, onToggle, currentConversationId }
       return;
     }
 
-    setIsUploading(true);
+    // Create preview URL (local blob)
+    const previewUrl = URL.createObjectURL(file);
+    setUploadedImage(previewUrl);
+    setFileToUpload(file); // Store the file for later upload
+    setHasNewUpload(true); // Mark that we have a new upload
 
-    try {
-      const supabase = createBrowserClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-      );
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
+    // Clear picker selection when user uploads a photo
+    setCurrentSelectedAvatar(null);
+    setAvatarUrl(null);
 
-      // Create preview
-      const previewUrl = URL.createObjectURL(file);
-      setUploadedImage(previewUrl);
-
-      // Upload to Supabase Storage
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${user.id}-${Date.now()}.${fileExt}`;
-      const filePath = `${user.id}/${fileName}`;
-
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(filePath, file);
-
-      if (uploadError) throw uploadError;
-
-      // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('avatars')
-        .getPublicUrl(filePath);
-
-      // Update profile with new avatar URL
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ avatar_url: publicUrl })
-        .eq('id', user.id);
-
-      if (updateError) throw updateError;
-
-      setAvatarUrl(publicUrl);
-      setSavedAvatarSvg(null); // Clear SVG avatar
-      setUploadedImage(null);
-
-    } catch (error) {
-      console.error('Upload error:', error);
-      alert('Failed to upload image. Please try again.');
-    } finally {
-      setIsUploading(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
+    // Clear the file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
   };
 
@@ -270,6 +261,39 @@ export function Sidebar({ isCollapsed = false, onToggle, currentConversationId }
       setIsDeleting(false);
       setShowDeleteAccountConfirm(false);
     }
+  };
+
+  // Cancel handler - restores original state by reloading from database
+  const handleCancelProfile = async () => {
+    // Reload profile from database to restore original state
+    const profile = await getProfile();
+    if (profile) {
+      setProfileName(profile.full_name || 'User');
+      setProfileEmail(profile.email || '');
+
+      // Restore avatar states from database
+      if (profile.avatar_url) {
+        setAvatarUrl(profile.avatar_url);
+        setCurrentSelectedAvatar(null);
+        setSavedAvatarSvg(null);
+      } else if (profile.avatar_id) {
+        const avatar = avatarList.find(a => a.id === profile.avatar_id);
+        if (avatar) {
+          setCurrentSelectedAvatar(avatar);
+          setSavedAvatarSvg(avatar.svg);
+          setAvatarUrl(null);
+        }
+      } else {
+        setCurrentSelectedAvatar(null);
+        setSavedAvatarSvg(null);
+      }
+    }
+
+    // Clear temp states
+    setUploadedImage(null);
+    setFileToUpload(null);
+    setHasNewUpload(false);
+    setShowProfileModal(false);
   };
 
   return (
@@ -315,50 +339,62 @@ export function Sidebar({ isCollapsed = false, onToggle, currentConversationId }
             setIsLogoHovered(false);
             handleMouseLeave();
           }}
-          onMouseMove={(e) => handleMouseMove(e, isCollapsed ? 'Expand' : 'Collapse')}
-          onClick={onToggle}
           className={cn(
-            "flex items-center gap-0 py-2 relative cursor-pointer rounded-lg transition-colors",
-            isCollapsed ? "justify-center px-1 hover:bg-white/5" : "px-2"
+            "flex items-center gap-0 py-2 relative rounded-lg transition-colors",
+            isCollapsed ? "justify-center px-1" : "px-2"
           )}
         >
-          {/* Logo */}
-          <div className="w-14 h-14 flex items-center justify-center flex-shrink-0 relative overflow-hidden">
-            {/* Calmify Logo - hidden when hovering and collapsed */}
-            {(!isLogoHovered || !isCollapsed) && (
-              <img
-                src="/logo.svg"
-                alt="Calmify Logo"
-                className="w-14 h-14"
-              />
-            )}
-            {/* Expand icon - shows on hover when collapsed */}
-            {mounted && isLogoHovered && isCollapsed && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="absolute inset-0 flex items-center justify-center"
-              >
-                <PanelLeftOpen className="w-5 h-5 text-black" />
-              </motion.div>
+          {/* Logo - Clickable to open new chat when expanded */}
+          <div
+            onClick={() => {
+              if (!isCollapsed) {
+                // Dispatch custom event that the chat page listens to
+                window.dispatchEvent(new CustomEvent('new-chat-request'));
+              } else {
+                onToggle();
+              }
+            }}
+            onMouseMove={(e) => handleMouseMove(e, isCollapsed ? 'Expand' : 'New chat')}
+            className="flex items-center gap-2 cursor-pointer hover:bg-white/5 rounded-lg transition-colors flex-1"
+          >
+            <div className="w-14 h-14 flex items-center justify-center flex-shrink-0 relative overflow-hidden">
+              {/* Calmify Logo - hidden when hovering and collapsed */}
+              {(!isLogoHovered || !isCollapsed) && (
+                <img
+                  src="/logo.svg"
+                  alt="Calmify Logo"
+                  className="w-14 h-14"
+                />
+              )}
+              {/* Expand icon - shows on hover when collapsed */}
+              {mounted && isLogoHovered && isCollapsed && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="absolute inset-0 flex items-center justify-center"
+                >
+                  <PanelLeftOpen className="w-5 h-5 text-black" />
+                </motion.div>
+              )}
+            </div>
+
+            {/* Logo Text - Always with logo when expanded */}
+            {!isCollapsed && (
+              <p className="text-lg text-black -ml-3">
+                Calmify AI
+              </p>
             )}
           </div>
 
-          {/* Logo Text - Always with logo when expanded */}
-          {!isCollapsed && (
-            <p className="text-lg text-black -ml-3">
-              Calmify AI
-            </p>
-          )}
-
-          {/* Collapse icon - always visible when expanded */}
+          {/* Collapse icon - separate clickable area when expanded */}
           {mounted && !isCollapsed && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute right-2"
+              onClick={onToggle}
+              className="cursor-pointer hover:bg-white/5 rounded p-1 -mr-1"
               onMouseMove={(e) => handleMouseMove(e, 'Collapse', true)}
               onMouseLeave={handleMouseLeave}
             >
@@ -564,7 +600,7 @@ export function Sidebar({ isCollapsed = false, onToggle, currentConversationId }
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100]"
-            onClick={() => setShowProfileModal(false)}
+            onClick={handleCancelProfile}
           />
 
           {/* Modal */}
@@ -581,7 +617,7 @@ export function Sidebar({ isCollapsed = false, onToggle, currentConversationId }
                 <div className="px-6 py-4 border-b border-[#444444] flex justify-between items-center">
                   <h2 className="text-lg font-medium text-white">Profile</h2>
                   <button
-                    onClick={() => setShowProfileModal(false)}
+                    onClick={handleCancelProfile}
                     className="text-gray-400 hover:text-white transition-colors"
                   >
                     ✕
@@ -602,6 +638,7 @@ export function Sidebar({ isCollapsed = false, onToggle, currentConversationId }
                         setCurrentSelectedAvatar(avatar);
                         setUploadedImage(null);
                         setAvatarUrl(null);
+                        setHasNewUpload(false); // Reset upload flag when selecting from picker
                       }}
                       onUploadClick={() => fileInputRef.current?.click()}
                     />
@@ -656,7 +693,7 @@ export function Sidebar({ isCollapsed = false, onToggle, currentConversationId }
                 {/* Footer - Save/Cancel Buttons */}
                 <div className="p-4 border-t border-[#444444] flex gap-3">
                   <button
-                    onClick={() => setShowProfileModal(false)}
+                    onClick={handleCancelProfile}
                     className="flex-1 rounded-full px-6 py-2 text-black font-medium text-sm font-['Almarai'] transition-all"
                     style={{ backgroundColor: '#FFFFFF' }}
                     onMouseEnter={(e) => {
@@ -670,53 +707,98 @@ export function Sidebar({ isCollapsed = false, onToggle, currentConversationId }
                   </button>
                   <button
                     onClick={async () => {
-                      // Commit temp values to main state
-                      setProfileName(tempProfileName);
-                      setProfileEmail(tempProfileEmail);
-                      // Save avatar
-                      if (currentSelectedAvatar) {
-                        setSavedAvatarSvg(currentSelectedAvatar.svg);
-                      }
-                      // Update profile in database
+                      setIsUploading(true);
+
                       try {
                         const supabase = createBrowserClient(
                           process.env.NEXT_PUBLIC_SUPABASE_URL!,
                           process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
                         );
                         const { data: { user } } = await supabase.auth.getUser();
-                        if (user) {
-                          const updateData = {
-                            full_name: tempProfileName,
-                            // If user uploaded a new photo, save avatar_url and clear avatar_id
-                            // If user selected from picker, save avatar_id and clear avatar_url
-                            // Otherwise keep existing avatar_url
-                            ...(uploadedImage
-                              ? { avatar_url: avatarUrl, avatar_id: null }
-                              : currentSelectedAvatar
-                              ? { avatar_id: currentSelectedAvatar.id, avatar_url: null }
-                              : { avatar_url: avatarUrl || null, avatar_id: null }
-                            ),
-                          };
-                          await supabase
-                            .from('profiles')
-                            .update(updateData)
-                            .eq('id', user.id);
+                        if (!user) throw new Error('Not authenticated');
+
+                        let finalAvatarUrl = avatarUrl;
+
+                        // Upload the file if user selected one
+                        if (fileToUpload) {
+                          const fileExt = fileToUpload.name.split('.').pop();
+                          const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+                          const filePath = `${user.id}/${fileName}`;
+
+                          const { error: uploadError } = await supabase.storage
+                            .from('avatars')
+                            .upload(filePath, fileToUpload);
+
+                          if (uploadError) throw uploadError;
+
+                          // Get public URL
+                          const { data: { publicUrl } } = supabase.storage
+                            .from('avatars')
+                            .getPublicUrl(filePath);
+
+                          finalAvatarUrl = publicUrl;
+                          setAvatarUrl(publicUrl);
                         }
+
+                        // Prepare update data
+                        const updateData: any = {
+                          full_name: tempProfileName,
+                        };
+
+                        // If user uploaded a new photo, save avatar_url and clear avatar_id
+                        if (fileToUpload || hasNewUpload) {
+                          updateData.avatar_url = finalAvatarUrl;
+                          updateData.avatar_id = null;
+                          // Clear picker avatar when we saved an uploaded photo
+                          setCurrentSelectedAvatar(null);
+                          setSavedAvatarSvg(null);
+                        }
+                        // If user selected from picker, save avatar_id and clear avatar_url
+                        else if (currentSelectedAvatar) {
+                          updateData.avatar_id = currentSelectedAvatar.id;
+                          updateData.avatar_url = null;
+                          // Save the picker avatar SVG
+                          setSavedAvatarSvg(currentSelectedAvatar.svg);
+                        }
+
+                        await supabase
+                          .from('profiles')
+                          .update(updateData)
+                          .eq('id', user.id);
+
+                        // Commit temp values to main state
+                        setProfileName(tempProfileName);
+                        setProfileEmail(tempProfileEmail);
+
                       } catch (error) {
                         console.error('Error saving profile:', error);
+                        alert('Failed to save profile. Please try again.');
+                      } finally {
+                        setIsUploading(false);
+                        setHasNewUpload(false);
+                        setFileToUpload(null);
+                        setUploadedImage(null);
+                        setShowProfileModal(false);
                       }
-                      setShowProfileModal(false);
                     }}
-                    className="flex-1 rounded-full px-6 py-2 text-black font-medium text-sm font-['Almarai'] transition-all"
+                    disabled={isUploading}
+                    className="flex-1 rounded-full px-6 py-2 text-black font-medium text-sm font-['Almarai'] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     style={{ backgroundColor: '#FFFFFF' }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = '#999';
+                      if (!isUploading) e.currentTarget.style.backgroundColor = '#999';
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.backgroundColor = '#FFFFFF';
                     }}
                   >
-                    Save
+                    {isUploading ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      'Save'
+                    )}
                   </button>
                 </div>
               </div>

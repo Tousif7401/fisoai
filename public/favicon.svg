@@ -1,0 +1,117 @@
+<svg width="1500" height="1500" viewBox="0 0 1500 1500" xmlns="http://www.w3.org/2000/svg" role="img">
+  <title>Calmify Logo</title>
+  <desc>A circular wreath of organic branching shapes forming the Calmify logo</desc>
+
+  <!-- Wreath built from 8 branch units rotated around center -->
+  <g transform="translate(750,750)">
+
+    <!-- Branch unit, repeated via rotation -->
+    <g>
+      <!-- Unit 1: 0deg -->
+      <g transform="rotate(0)">
+        <path d="M0,-680 C23,-607 14,-544 0,-476 C-14,-544 -23,-607 0,-680Z" fill="#ffffff"/>
+        <path d="M0,-578 C70,-543 119,-492 136,-412" stroke="#ffffff" stroke-width="25" fill="none" stroke-linecap="round"/>
+        <path d="M136,-412 C179,-341 171,-281 136,-206" stroke="#ffffff" stroke-width="19" fill="none" stroke-linecap="round"/>
+        <path d="M136,-412 C205,-372 239,-315 239,-246" stroke="#ffffff" stroke-width="14" fill="none" stroke-linecap="round"/>
+        <path d="M0,-578 C-70,-543 -119,-492 -136,-412" stroke="#ffffff" stroke-width="25" fill="none" stroke-linecap="round"/>
+        <path d="M-136,-412 C-179,-341 -171,-281 -136,-206" stroke="#ffffff" stroke-width="19" fill="none" stroke-linecap="round"/>
+        <path d="M-136,-412 C-205,-372 -239,-315 -239,-246" stroke="#ffffff" stroke-width="14" fill="none" stroke-linecap="round"/>
+        <path d="M0,-578 C0,-504 0,-460 0,-398" stroke="#ffffff" stroke-width="23" fill="none" stroke-linecap="round"/>
+        <path d="M0,-398 C47,-365 62,-298 62,-227" stroke="#ffffff" stroke-width="17" fill="none" stroke-linecap="round"/>
+        <path d="M0,-398 C-47,-365 -62,-298 -62,-227" stroke="#ffffff" stroke-width="17" fill="none" stroke-linecap="round"/>
+      </g>
+      <!-- Unit 2 -->
+      <g transform="rotate(45)">
+        <path d="M0,-680 C23,-607 14,-544 0,-476 C-14,-544 -23,-607 0,-680Z" fill="#ffffff"/>
+        <path d="M0,-578 C70,-543 119,-492 136,-412" stroke="#ffffff" stroke-width="25" fill="none" stroke-linecap="round"/>
+        <path d="M136,-412 C179,-341 171,-281 136,-206" stroke="#ffffff" stroke-width="19" fill="none" stroke-linecap="round"/>
+        <path d="M136,-412 C205,-372 239,-315 239,-246" stroke="#ffffff" stroke-width="14" fill="none" stroke-linecap="round"/>
+        <path d="M0,-578 C-70,-543 -119,-492 -136,-412" stroke="#ffffff" stroke-width="25" fill="none" stroke-linecap="round"/>
+        <path d="M-136,-412 C-179,-341 -171,-281 -136,-206" stroke="#ffffff" stroke-width="19" fill="none" stroke-linecap="round"/>
+        <path d="M-136,-412 C-205,-372 -239,-315 -239,-246" stroke="#ffffff" stroke-width="14" fill="none" stroke-linecap="round"/>
+        <path d="M0,-578 C0,-504 0,-460 0,-398" stroke="#ffffff" stroke-width="23" fill="none" stroke-linecap="round"/>
+        <path d="M0,-398 C47,-365 62,-298 62,-227" stroke="#ffffff" stroke-width="17" fill="none" stroke-linecap="round"/>
+        <path d="M0,-398 C-47,-365 -62,-298 -62,-227" stroke="#ffffff" stroke-width="17" fill="none" stroke-linecap="round"/>
+      </g>
+      <!-- Unit 3 -->
+      <g transform="rotate(90)">
+        <path d="M0,-680 C23,-607 14,-544 0,-476 C-14,-544 -23,-607 0,-680Z" fill="#ffffff"/>
+        <path d="M0,-578 C70,-543 119,-492 136,-412" stroke="#ffffff" stroke-width="25" fill="none" stroke-linecap="round"/>
+        <path d="M136,-412 C179,-341 171,-281 136,-206" stroke="#ffffff" stroke-width="19" fill="none" stroke-linecap="round"/>
+        <path d="M136,-412 C205,-372 239,-315 239,-246" stroke="#ffffff" stroke-width="14" fill="none" stroke-linecap="round"/>
+        <path d="M0,-578 C-70,-543 -119,-492 -136,-412" stroke="#ffffff" stroke-width="25" fill="none" stroke-linecap="round"/>
+        <path d="M-136,-412 C-179,-341 -171,-281 -136,-206" stroke="#ffffff" stroke-width="19" fill="none" stroke-linecap="round"/>
+        <path d="M-136,-412 C-205,-372 -239,-315 -239,-246" stroke="#ffffff" stroke-width="14" fill="none" stroke-linecap="round"/>
+        <path d="M0,-578 C0,-504 0,-460 0,-398" stroke="#ffffff" stroke-width="23" fill="none" stroke-linecap="round"/>
+        <path d="M0,-398 C47,-365 62,-298 62,-227" stroke="#ffffff" stroke-width="17" fill="none" stroke-linecap="round"/>
+        <path d="M0,-398 C-47,-365 -62,-298 -62,-227" stroke="#ffffff" stroke-width="17" fill="none" stroke-linecap="round"/>
+      </g>
+      <!-- Unit 4 -->
+      <g transform="rotate(135)">
+        <path d="M0,-680 C23,-607 14,-544 0,-476 C-14,-544 -23,-607 0,-680Z" fill="#ffffff"/>
+        <path d="M0,-578 C70,-543 119,-492 136,-412" stroke="#ffffff" stroke-width="25" fill="none" stroke-linecap="round"/>
+        <path d="M136,-412 C179,-341 171,-281 136,-206" stroke="#ffffff" stroke-width="19" fill="none" stroke-linecap="round"/>
+        <path d="M136,-412 C205,-372 239,-315 239,-246" stroke="#ffffff" stroke-width="14" fill="none" stroke-linecap="round"/>
+        <path d="M0,-578 C-70,-543 -119,-492 -136,-412" stroke="#ffffff" stroke-width="25" fill="none" stroke-linecap="round"/>
+        <path d="M-136,-412 C-179,-341 -171,-281 -136,-206" stroke="#ffffff" stroke-width="19" fill="none" stroke-linecap="round"/>
+        <path d="M-136,-412 C-205,-372 -239,-315 -239,-246" stroke="#ffffff" stroke-width="14" fill="none" stroke-linecap="round"/>
+        <path d="M0,-578 C0,-504 0,-460 0,-398" stroke="#ffffff" stroke-width="23" fill="none" stroke-linecap="round"/>
+        <path d="M0,-398 C47,-365 62,-298 62,-227" stroke="#ffffff" stroke-width="17" fill="none" stroke-linecap="round"/>
+        <path d="M0,-398 C-47,-365 -62,-298 -62,-227" stroke="#ffffff" stroke-width="17" fill="none" stroke-linecap="round"/>
+      </g>
+      <!-- Unit 5 -->
+      <g transform="rotate(180)">
+        <path d="M0,-680 C23,-607 14,-544 0,-476 C-14,-544 -23,-607 0,-680Z" fill="#ffffff"/>
+        <path d="M0,-578 C70,-543 119,-492 136,-412" stroke="#ffffff" stroke-width="25" fill="none" stroke-linecap="round"/>
+        <path d="M136,-412 C179,-341 171,-281 136,-206" stroke="#ffffff" stroke-width="19" fill="none" stroke-linecap="round"/>
+        <path d="M136,-412 C205,-372 239,-315 239,-246" stroke="#ffffff" stroke-width="14" fill="none" stroke-linecap="round"/>
+        <path d="M0,-578 C-70,-543 -119,-492 -136,-412" stroke="#ffffff" stroke-width="25" fill="none" stroke-linecap="round"/>
+        <path d="M-136,-412 C-179,-341 -171,-281 -136,-206" stroke="#ffffff" stroke-width="19" fill="none" stroke-linecap="round"/>
+        <path d="M-136,-412 C-205,-372 -239,-315 -239,-246" stroke="#ffffff" stroke-width="14" fill="none" stroke-linecap="round"/>
+        <path d="M0,-578 C0,-504 0,-460 0,-398" stroke="#ffffff" stroke-width="23" fill="none" stroke-linecap="round"/>
+        <path d="M0,-398 C47,-365 62,-298 62,-227" stroke="#ffffff" stroke-width="17" fill="none" stroke-linecap="round"/>
+        <path d="M0,-398 C-47,-365 -62,-298 -62,-227" stroke="#ffffff" stroke-width="17" fill="none" stroke-linecap="round"/>
+      </g>
+      <!-- Unit 6 -->
+      <g transform="rotate(225)">
+        <path d="M0,-680 C23,-607 14,-544 0,-476 C-14,-544 -23,-607 0,-680Z" fill="#ffffff"/>
+        <path d="M0,-578 C70,-543 119,-492 136,-412" stroke="#ffffff" stroke-width="25" fill="none" stroke-linecap="round"/>
+        <path d="M136,-412 C179,-341 171,-281 136,-206" stroke="#ffffff" stroke-width="19" fill="none" stroke-linecap="round"/>
+        <path d="M136,-412 C205,-372 239,-315 239,-246" stroke="#ffffff" stroke-width="14" fill="none" stroke-linecap="round"/>
+        <path d="M0,-578 C-70,-543 -119,-492 -136,-412" stroke="#ffffff" stroke-width="25" fill="none" stroke-linecap="round"/>
+        <path d="M-136,-412 C-179,-341 -171,-281 -136,-206" stroke="#ffffff" stroke-width="19" fill="none" stroke-linecap="round"/>
+        <path d="M-136,-412 C-205,-372 -239,-315 -239,-246" stroke="#ffffff" stroke-width="14" fill="none" stroke-linecap="round"/>
+        <path d="M0,-578 C0,-504 0,-460 0,-398" stroke="#ffffff" stroke-width="23" fill="none" stroke-linecap="round"/>
+        <path d="M0,-398 C47,-365 62,-298 62,-227" stroke="#ffffff" stroke-width="17" fill="none" stroke-linecap="round"/>
+        <path d="M0,-398 C-47,-365 -62,-298 -62,-227" stroke="#ffffff" stroke-width="17" fill="none" stroke-linecap="round"/>
+      </g>
+      <!-- Unit 7 -->
+      <g transform="rotate(270)">
+        <path d="M0,-680 C23,-607 14,-544 0,-476 C-14,-544 -23,-607 0,-680Z" fill="#ffffff"/>
+        <path d="M0,-578 C70,-543 119,-492 136,-412" stroke="#ffffff" stroke-width="25" fill="none" stroke-linecap="round"/>
+        <path d="M136,-412 C179,-341 171,-281 136,-206" stroke="#ffffff" stroke-width="19" fill="none" stroke-linecap="round"/>
+        <path d="M136,-412 C205,-372 239,-315 239,-246" stroke="#ffffff" stroke-width="14" fill="none" stroke-linecap="round"/>
+        <path d="M0,-578 C-70,-543 -119,-492 -136,-412" stroke="#ffffff" stroke-width="25" fill="none" stroke-linecap="round"/>
+        <path d="M-136,-412 C-179,-341 -171,-281 -136,-206" stroke="#ffffff" stroke-width="19" fill="none" stroke-linecap="round"/>
+        <path d="M-136,-412 C-205,-372 -239,-315 -239,-246" stroke="#ffffff" stroke-width="14" fill="none" stroke-linecap="round"/>
+        <path d="M0,-578 C0,-504 0,-460 0,-398" stroke="#ffffff" stroke-width="23" fill="none" stroke-linecap="round"/>
+        <path d="M0,-398 C47,-365 62,-298 62,-227" stroke="#ffffff" stroke-width="17" fill="none" stroke-linecap="round"/>
+        <path d="M0,-398 C-47,-365 -62,-298 -62,-227" stroke="#ffffff" stroke-width="17" fill="none" stroke-linecap="round"/>
+      </g>
+      <!-- Unit 8 -->
+      <g transform="rotate(315)">
+        <path d="M0,-680 C23,-607 14,-544 0,-476 C-14,-544 -23,-607 0,-680Z" fill="#ffffff"/>
+        <path d="M0,-578 C70,-543 119,-492 136,-412" stroke="#ffffff" stroke-width="25" fill="none" stroke-linecap="round"/>
+        <path d="M136,-412 C179,-341 171,-281 136,-206" stroke="#ffffff" stroke-width="19" fill="none" stroke-linecap="round"/>
+        <path d="M136,-412 C205,-372 239,-315 239,-246" stroke="#ffffff" stroke-width="14" fill="none" stroke-linecap="round"/>
+        <path d="M0,-578 C-70,-543 -119,-492 -136,-412" stroke="#ffffff" stroke-width="25" fill="none" stroke-linecap="round"/>
+        <path d="M-136,-412 C-179,-341 -171,-281 -136,-206" stroke="#ffffff" stroke-width="19" fill="none" stroke-linecap="round"/>
+        <path d="M-136,-412 C-205,-372 -239,-315 -239,-246" stroke="#ffffff" stroke-width="14" fill="none" stroke-linecap="round"/>
+        <path d="M0,-578 C0,-504 0,-460 0,-398" stroke="#ffffff" stroke-width="23" fill="none" stroke-linecap="round"/>
+        <path d="M0,-398 C47,-365 62,-298 62,-227" stroke="#ffffff" stroke-width="17" fill="none" stroke-linecap="round"/>
+        <path d="M0,-398 C-47,-365 -62,-298 -62,-227" stroke="#ffffff" stroke-width="17" fill="none" stroke-linecap="round"/>
+      </g>
+    </g>
+
+  </g>
+</svg>

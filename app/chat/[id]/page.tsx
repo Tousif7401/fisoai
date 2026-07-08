@@ -7,10 +7,13 @@ import { PromptInputBox } from "@/components/ui/ai-prompt-box";
 import { Sidebar } from '@/components/Sidebar';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Bot, User, Plus, Edit2, Check, MoreVertical, Pin, Trash2 } from 'lucide-react';
-import { getUser } from '@/lib/supabase/auth';
+import { getUser, getProfile } from '@/lib/supabase/auth';
 import { articles } from '@/lib/articles';
 import * as chatService from '@/lib/supabase/chat';
 import { useToast } from '@/components/ui/toast';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { AvatarPicker, avatarList } from '@/components/ui/avatar-picker';
+import { createBrowserClient } from '@supabase/ssr';
 
 interface Message {
   id: string;
@@ -99,7 +102,18 @@ export default function ChatPage() {
   const params = useParams();
   const { showError, showSuccess } = useToast();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('sidebar-collapsed');
+      return saved ? JSON.parse(saved) : true;
+    }
+    return true;
+  });
+
+  // Persist sidebar state to localStorage
+  useEffect(() => {
+    localStorage.setItem('sidebar-collapsed', JSON.stringify(isSidebarCollapsed));
+  }, [isSidebarCollapsed]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const [hasStartedChat, setHasStartedChat] = useState(false);
@@ -115,6 +129,16 @@ export default function ChatPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isPinned, setIsPinned] = useState(false);
+  const [isLoadingConversation, setIsLoadingConversation] = useState(false);
+
+  // Delete dialog state
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [conversationToDelete, setConversationToDelete] = useState<string | null>(null);
+
+  // User profile state
+  const [profileName, setProfileName] = useState('User');
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [savedAvatarSvg, setSavedAvatarSvg] = useState<React.ReactNode>(null);
 
   // Check authentication on mount
   useEffect(() => {
@@ -128,6 +152,27 @@ export default function ChatPage() {
     };
     checkAuth();
   }, [router]);
+
+  // Fetch user profile on mount
+  useEffect(() => {
+    const fetchProfile = async () => {
+      const profile = await getProfile();
+      if (profile) {
+        setProfileName(profile.full_name || 'User');
+        if (profile.avatar_url) {
+          setAvatarUrl(profile.avatar_url);
+        }
+        // Load selected avatar from avatar_id
+        if (profile.avatar_id) {
+          const avatar = avatarList.find(a => a.id === profile.avatar_id);
+          if (avatar) {
+            setSavedAvatarSvg(avatar.svg);
+          }
+        }
+      }
+    };
+    fetchProfile();
+  }, []);
 
   // Listen for custom new chat event from sidebar
   useEffect(() => {
@@ -149,6 +194,42 @@ export default function ChatPage() {
 
     window.addEventListener('new-chat-request', handleNewChatRequest);
     return () => window.removeEventListener('new-chat-request', handleNewChatRequest);
+  }, []);
+
+  // Listen for conversation selection from sidebar
+  useEffect(() => {
+    const handleConversationSelected = async (event: CustomEvent<{ id: string }>) => {
+      const { id } = event.detail;
+      setIsLoadingConversation(true);
+
+      try {
+        const conversation = await chatService.getConversationMessages(id);
+        setConversationId(id);
+        setConversationTitle(conversation.title);
+        setIsPinned(conversation.pinned);
+        setMessages(conversation.messages);
+        setHasStartedChat(conversation.messages.length > 0);
+      } catch (error) {
+        console.error('Failed to load conversation:', error);
+      } finally {
+        setIsLoadingConversation(false);
+      }
+    };
+
+    window.addEventListener('conversation-selected', handleConversationSelected as EventListener);
+    return () => window.removeEventListener('conversation-selected', handleConversationSelected as EventListener);
+  }, []);
+
+  // Listen for delete conversation request from sidebar
+  useEffect(() => {
+    const handleDeleteRequest = (event: Event) => {
+      const customEvent = event as CustomEvent<{ id: string }>;
+      setConversationToDelete(customEvent.detail.id);
+      setDeleteDialogOpen(true);
+    };
+
+    window.addEventListener('delete-conversation-request', handleDeleteRequest as EventListener);
+    return () => window.removeEventListener('delete-conversation-request', handleDeleteRequest as EventListener);
   }, []);
 
   // Load conversation from URL on mount
@@ -230,9 +311,8 @@ export default function ChatPage() {
     return CALMIFY_KEYWORDS.some(keyword => lowerMessage.includes(keyword));
   };
 
-  const createNewConversation = async () => {
-    // Use shallow routing to avoid page remount
-    window.history.pushState({}, '', '/chat/new');
+  const createNewConversation = () => {
+    // Reset state for new chat
     setConversationId(null);
     setConversationTitle(null);
     setMessages([]);
@@ -248,6 +328,8 @@ export default function ChatPage() {
       setConversationTitle(editedTitle.trim());
       setIsEditingTitle(false);
       showSuccess('Conversation renamed');
+      // Dispatch event to notify sidebar of the update
+      window.dispatchEvent(new CustomEvent('conversation-updated', { detail: { id: conversationId, title: editedTitle.trim() } }));
     } catch (error) {
       console.error('Failed to update title:', error);
       showError('Failed to rename conversation');
@@ -277,10 +359,44 @@ export default function ChatPage() {
       await chatService.deleteConversation(conversationId);
       showSuccess('Conversation deleted');
       createNewConversation();
+      // Dispatch event to notify sidebar
+      window.dispatchEvent(new CustomEvent('conversation-deleted', { detail: { id: conversationId } }));
+      // Update URL to /chat/new
+      window.history.replaceState({}, '', '/chat/new');
     } catch (error) {
       console.error('Failed to delete conversation:', error);
       showError('Failed to delete conversation');
     }
+  };
+
+  // Handlers for dialog-based deletion (from sidebar)
+  const confirmDeleteConversation = async () => {
+    if (!conversationToDelete) return;
+
+    try {
+      await chatService.deleteConversation(conversationToDelete);
+      showSuccess('Conversation deleted');
+
+      // Dispatch event to notify sidebar
+      window.dispatchEvent(new CustomEvent('conversation-deleted', { detail: { id: conversationToDelete } }));
+
+      // If we deleted the current conversation, reset state
+      if (conversationToDelete === conversationId) {
+        createNewConversation();
+        window.history.replaceState({}, '', '/chat/new');
+      }
+
+      setDeleteDialogOpen(false);
+      setConversationToDelete(null);
+    } catch (error) {
+      console.error('Failed to delete conversation:', error);
+      showError('Failed to delete conversation');
+    }
+  };
+
+  const cancelDeleteConversation = () => {
+    setDeleteDialogOpen(false);
+    setConversationToDelete(null);
   };
 
   const handleSendMessage = async (message: string, files?: File[]) => {
@@ -298,10 +414,14 @@ export default function ChatPage() {
           (await getUser()).user!.id,
           message.slice(0, 50) + (message.length > 50 ? '...' : '')
         );
+        console.log('New conversation created:', newConv);
         setConversationId(newConv.id);
         setConversationTitle(newConv.title ?? null);
         // Use shallow routing to avoid page remount
         window.history.replaceState({}, '', `/chat/${newConv.id}`);
+        // Dispatch event to notify sidebar of new conversation
+        console.log('Dispatching conversation-created event with:', newConv);
+        window.dispatchEvent(new CustomEvent('conversation-created', { detail: { conversation: newConv } }));
       } catch (error) {
         console.error('Failed to create conversation:', error);
         showError('Failed to save conversation');
@@ -429,7 +549,22 @@ export default function ChatPage() {
       <div className="flex-1 flex flex-col h-full overflow-hidden relative">
         {/* Conversation Header */}
         {conversationId && (
-          <div className="flex items-center justify-between px-4 py-3">
+          <>
+            {/* Loading indicator above header */}
+            {isLoadingConversation && (
+              <div className="px-4 py-2">
+                <div className="w-full h-0.5 bg-black/20 rounded-full overflow-hidden">
+                  <motion.div
+                    initial={{ width: '0%' }}
+                    animate={{ width: '100%' }}
+                    transition={{ duration: 1.5, ease: 'easeInOut', repeat: Infinity }}
+                    className="h-full bg-black/60"
+                  />
+                </div>
+              </div>
+            )}
+
+            <div className="flex items-center justify-between px-4 py-3">
             <div className="flex items-center gap-2">
               {isEditingTitle ? (
                 <div className="flex items-center gap-2">
@@ -515,6 +650,7 @@ export default function ChatPage() {
               </AnimatePresence>
             </div>
           </div>
+          </>
         )}
 
         {/* Top Spacer - keeps input centered initially */}
@@ -547,8 +683,8 @@ export default function ChatPage() {
                 }`}
               >
                 {message.role === 'assistant' && (
-                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center flex-shrink-0 shadow-lg">
-                    <Bot className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white flex items-center justify-center flex-shrink-0 shadow-lg overflow-hidden">
+                    <img src="/logo.svg" alt="Calmify" className="w-full h-full object-cover" />
                   </div>
                 )}
                 <div
@@ -596,8 +732,16 @@ export default function ChatPage() {
                   )}
                 </div>
                 {message.role === 'user' && (
-                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br from-orange-400 to-pink-500 flex items-center justify-center flex-shrink-0 shadow-lg">
-                    <User className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br from-orange-400 to-pink-500 flex items-center justify-center flex-shrink-0 shadow-lg border border-white/20 overflow-hidden">
+                    {savedAvatarSvg ? (
+                      <div className="w-full h-full flex items-center justify-center">
+                        {savedAvatarSvg}
+                      </div>
+                    ) : avatarUrl ? (
+                      <img src={avatarUrl} alt={profileName} className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-white font-semibold text-xs">{profileName.charAt(0).toUpperCase()}</span>
+                    )}
                   </div>
                 )}
               </motion.div>
@@ -610,8 +754,8 @@ export default function ChatPage() {
                 animate={{ opacity: 1, y: 0 }}
                 className="flex gap-3 justify-start"
               >
-                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center flex-shrink-0 shadow-lg">
-                  <Bot className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white flex items-center justify-center flex-shrink-0 shadow-lg overflow-hidden">
+                  <img src="/logo.svg" alt="Calmify" className="w-full h-full object-cover" />
                 </div>
                 <div className="bg-[#1F2023] border border-[#444444] rounded-2xl px-3 py-2 sm:px-4 sm:py-3">
                   <div className="flex gap-1">
@@ -667,6 +811,17 @@ export default function ChatPage() {
           style={{ flex: hasStartedChat ? 0 : 1, minHeight: 0 }}
         />
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={deleteDialogOpen}
+        title="Delete Conversation"
+        message="Are you sure you want to delete this conversation? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        onConfirm={confirmDeleteConversation}
+        onCancel={cancelDeleteConversation}
+      />
     </div>
   );
 }

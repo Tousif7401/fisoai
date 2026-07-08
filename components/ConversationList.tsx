@@ -370,12 +370,125 @@ function ConversationList({ currentConversationId, onConversationSelect, isColla
     loadConversations();
   }, [loadConversations]);
 
+  // Listen for conversation updates from the chat page
+  useEffect(() => {
+    const handleConversationUpdate = (event: CustomEvent<{ id: string; title: string }>) => {
+      const { id, title } = event.detail;
+      // Update the conversation title in local state
+      setConversations(prev => {
+        const updateList = (list: Conversation[]) => list.map(conv =>
+          conv.id === id ? { ...conv, title } : conv
+        );
+        return {
+          pinned: updateList(prev.pinned),
+          today: updateList(prev.today),
+          yesterday: updateList(prev.yesterday),
+          thisWeek: updateList(prev.thisWeek),
+          older: updateList(prev.older)
+        };
+      });
+    };
+
+    window.addEventListener('conversation-updated', handleConversationUpdate as EventListener);
+    return () => window.removeEventListener('conversation-updated', handleConversationUpdate as EventListener);
+  }, []);
+
+  // Listen for new conversations created from the chat page
+  useEffect(() => {
+    const handleConversationCreated = (event: Event) => {
+      console.log('conversation-created event received:', event);
+      const customEvent = event as CustomEvent<{ conversation: Conversation }>;
+      const conversation = customEvent.detail.conversation;
+      console.log('Conversation from event:', conversation);
+      if (!conversation) return;
+
+      // Add the new conversation to the appropriate section
+      const now = new Date();
+
+      // Determine which section this conversation belongs to
+      const getConversationSection = (conv: Conversation) => {
+        if (conv.pinned) return 'pinned';
+
+        const createdAt = new Date(conv.created_at);
+
+        // Get the start of today (midnight) in local timezone
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        // Get the start of yesterday
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+
+        // Get the start of 7 days ago
+        const weekAgo = new Date(today);
+        weekAgo.setDate(weekAgo.getDate() - 7);
+
+        // Normalize the created date to start of its day
+        const createdDay = new Date(createdAt);
+        createdDay.setHours(0, 0, 0, 0);
+
+        console.log('Date comparison:', {
+          createdDay: createdDay.toISOString(),
+          today: today.toISOString(),
+          yesterday: yesterday.toISOString(),
+          weekAgo: weekAgo.toISOString()
+        });
+
+        // Compare the dates
+        if (createdDay.getTime() === today.getTime()) return 'today';
+        if (createdDay.getTime() === yesterday.getTime()) return 'yesterday';
+        if (createdDay >= weekAgo) return 'thisWeek';
+        return 'older';
+      };
+
+      const section = getConversationSection(conversation);
+      console.log('Adding conversation to section:', section);
+
+      setConversations(prev => {
+        console.log('Previous conversations:', prev);
+        const newState = {
+          ...prev,
+          [section]: [conversation, ...prev[section]]
+        };
+        console.log('New conversations state:', newState);
+        return newState;
+      });
+    };
+
+    window.addEventListener('conversation-created', handleConversationCreated as EventListener);
+    return () => window.removeEventListener('conversation-created', handleConversationCreated as EventListener);
+  }, []);
+
+  // Listen for conversation deletions from the chat page
+  useEffect(() => {
+    const handleConversationDeleted = (event: Event) => {
+      const customEvent = event as CustomEvent<{ id: string }>;
+      const { id } = customEvent.detail;
+      // Remove the conversation from all sections
+      setConversations(prev => {
+        const filterList = (list: Conversation[]) => list.filter(conv => conv.id !== id);
+        return {
+          pinned: filterList(prev.pinned),
+          today: filterList(prev.today),
+          yesterday: filterList(prev.yesterday),
+          thisWeek: filterList(prev.thisWeek),
+          older: filterList(prev.older)
+        };
+      });
+    };
+
+    window.addEventListener('conversation-deleted', handleConversationDeleted as EventListener);
+    return () => window.removeEventListener('conversation-deleted', handleConversationDeleted as EventListener);
+  }, []);
+
   const handleSelectConversation = useCallback((id: string) => {
-    if (onConversationSelect) {
-      onConversationSelect(id);
+    // Dispatch custom event to notify chat page
+    window.dispatchEvent(new CustomEvent('conversation-selected', { detail: { id } }));
+    // Use shallow routing to update URL without full page reload
+    if (window.location.pathname !== `/chat/${id}`) {
+      window.history.pushState({}, '', `/chat/${id}`);
     }
-    router.push(`/chat/${id}`);
-  }, [onConversationSelect, router]);
+  }, []);
 
   const handlePinConversation = useCallback(async (id: string, currentPinned: boolean) => {
     try {
@@ -400,29 +513,11 @@ function ConversationList({ currentConversationId, onConversationSelect, isColla
     setMenuOpen(null);
   }, [showSuccess, showError]);
 
-  const handleDeleteConversation = useCallback(async (id: string) => {
-    try {
-      await chatService.deleteConversation(id);
-      showSuccess('Conversation deleted');
-      // Optimistically update local state
-      setConversations(prev => {
-        const filterList = (list: Conversation[]) => list.filter(conv => conv.id !== id);
-        return {
-          pinned: filterList(prev.pinned),
-          today: filterList(prev.today),
-          yesterday: filterList(prev.yesterday),
-          thisWeek: filterList(prev.thisWeek),
-          older: filterList(prev.older)
-        };
-      });
-      if (currentConversationId === id) {
-        router.push('/chat/new');
-      }
-    } catch (error) {
-      showError('Failed to delete conversation');
-    }
+  const handleDeleteConversation = useCallback((id: string) => {
+    // Dispatch event to let the chat page handle deletion
+    window.dispatchEvent(new CustomEvent('delete-conversation-request', { detail: { id } }));
     setMenuOpen(null);
-  }, [showSuccess, showError, currentConversationId, router]);
+  }, []);
 
   const handleStartEdit = useCallback((id: string, title: string) => {
     setEditingId(id);
@@ -469,19 +564,14 @@ function ConversationList({ currentConversationId, onConversationSelect, isColla
   }, []);
 
   const handleExportConversation = useCallback(async (id: string, title: string) => {
-    try {
-      const conversation = await chatService.getConversationMessages(id);
-      setSelectedConversation({
-        id,
-        title: title || 'New Conversation',
-        messages: conversation.messages
-      });
-      setExportModalOpen(true);
-      setMenuOpen(null);
-    } catch (error) {
-      showError('Failed to load conversation for export');
-    }
-  }, [showError]);
+    setSelectedConversation({
+      id,
+      title: title || 'New Conversation',
+      messages: [] // Start empty, will load in modal
+    });
+    setExportModalOpen(true);
+    setMenuOpen(null);
+  }, []);
 
   const getRelativeTime = useCallback((dateString: string): string => {
     const date = new Date(dateString);
@@ -525,6 +615,10 @@ function ConversationList({ currentConversationId, onConversationSelect, isColla
   }, []);
 
   if (isLoading) {
+    // When collapsed, don't show the loading message
+    if (isCollapsed) {
+      return null;
+    }
     return (
       <div className="px-2 py-4 text-center text-sm text-black/50">
         Loading conversations...
