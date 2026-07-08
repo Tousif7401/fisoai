@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { createPortal } from 'react-dom';
-import { X, Mail, MessageSquare } from 'lucide-react';
+import { X, MessageSquare } from 'lucide-react';
 
 interface HelpModalProps {
   isOpen: boolean;
@@ -11,12 +11,11 @@ interface HelpModalProps {
 }
 
 export function HelpModal({ isOpen, onClose }: HelpModalProps) {
-  const [copiedEmail, setCopiedEmail] = useState(false);
-
-  const handleCopyEmail = () => {
-    navigator.clipboard.writeText('support@calmify.ai');
-    setCopiedEmail(true);
-    setTimeout(() => setCopiedEmail(false), 2000);
+  const handleSendFeedback = () => {
+    const subject = encodeURIComponent('Calmify Feedback');
+    const body = encodeURIComponent('I would like to share my feedback about Calmify...\n\n');
+    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=calmify.devteam@gmail.com&su=${subject}&body=${body}`;
+    window.open(gmailUrl, '_blank');
   };
 
   if (!isOpen) return null;
@@ -78,8 +77,7 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
                   {[
                     { title: 'AI Chat', desc: 'Talk to Calmify — your compassionate AI companion' },
                     { title: 'Articles', desc: 'Curated mental health articles for builders' },
-                    { title: 'Profile', desc: 'Customize your avatar and personal details' },
-                    { title: 'Settings', desc: 'Configure your preferences' }
+                    { title: 'Profile', desc: 'Customize your avatar and personal details' }
                   ].map((feature, index) => (
                     <motion.div
                       key={feature.title}
@@ -108,24 +106,7 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
                 </p>
                 <div className="space-y-3">
                   <button
-                    onClick={handleCopyEmail}
-                    className="w-full flex items-center gap-4 p-4 rounded-xl bg-[#212121] border border-[#333] hover:border-[#DEDBC8]/30 transition-colors text-left group"
-                  >
-                    <div className="w-10 h-10 rounded-full bg-[#DEDBC8]/10 flex items-center justify-center flex-shrink-0">
-                      <Mail className="w-5 h-5" style={{ color: '#DEDBC8' }} />
-                    </div>
-                    <div className="flex-1">
-                      <h5 className="text-sm font-medium" style={{ color: '#E1E0CC' }}>
-                        Email Support
-                      </h5>
-                      <p className="text-sm opacity-60" style={{ color: '#DEDBC8' }}>
-                        {copiedEmail ? 'Copied to clipboard!' : 'support@calmify.ai'}
-                      </p>
-                    </div>
-                  </button>
-
-                  <a
-                    href="#"
+                    onClick={handleSendFeedback}
                     className="w-full flex items-center gap-4 p-4 rounded-xl bg-[#212121] border border-[#333] hover:border-[#DEDBC8]/30 transition-colors text-left group"
                   >
                     <div className="w-10 h-10 rounded-full bg-[#DEDBC8]/10 flex items-center justify-center flex-shrink-0">
@@ -139,7 +120,7 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
                         Help us improve Calmify
                       </p>
                     </div>
-                  </a>
+                  </button>
                 </div>
               </div>
             </div>
