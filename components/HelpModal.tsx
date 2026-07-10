@@ -33,16 +33,16 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
       />
 
       {/* Modal */}
-      <div className="fixed inset-0 z-[101] flex items-center justify-center pointer-events-none p-4">
+      <div className="fixed inset-0 z-[101] flex items-end sm:items-center justify-center pointer-events-none">
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           transition={{ duration: 0.2 }}
-          className="pointer-events-auto w-full max-w-lg"
+          className="pointer-events-auto w-full max-w-lg mx-4 sm:mx-0"
         >
           <div
-            className="rounded-2xl overflow-hidden shadow-2xl font-['Almarai'] max-h-[90vh] overflow-y-auto"
+            className="rounded-t-2xl sm:rounded-2xl overflow-hidden shadow-2xl font-['Almarai'] max-h-[90vh] overflow-y-auto"
             style={{
               background: 'rgba(16, 16, 16, 0.95)',
               borderColor: 'rgba(222, 219, 200, 0.1)',
@@ -50,9 +50,9 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
             }}
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b" style={{ borderColor: 'rgba(222, 219, 200, 0.1)' }}>
+            <div className="flex items-center justify-between p-4 sm:p-6 border-b" style={{ borderColor: 'rgba(222, 219, 200, 0.1)' }}>
               <div>
-                <h2 className="text-2xl font-medium leading-none tracking-tight" style={{ color: '#E1E0CC' }}>
+                <h2 className="text-xl sm:text-2xl font-medium leading-none tracking-tight" style={{ color: '#E1E0CC' }}>
                   Help & Support
                 </h2>
                 <p className="text-sm mt-1 opacity-80" style={{ color: '#DEDBC8' }}>
@@ -67,7 +67,7 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
               </button>
             </div>
 
-            <div className="p-6 space-y-6">
+            <div className="p-4 sm:p-6 space-y-6 pb-safe">
               {/* Features */}
               <div>
                 <p className="text-xs uppercase tracking-wider mb-4" style={{ color: 'rgba(222, 219, 200, 0.6)' }}>
@@ -126,7 +126,7 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
             </div>
 
             {/* Footer */}
-            <div className="p-4 border-t flex justify-center" style={{ borderColor: 'rgba(222, 219, 200, 0.1)' }}>
+            <div className="p-4 border-t flex justify-center pb-safe" style={{ borderColor: 'rgba(222, 219, 200, 0.1)' }}>
               <p className="text-sm" style={{ color: '#999' }}>
                 Made with 💛 for your mental wellness
               </p>
