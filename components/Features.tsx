@@ -28,7 +28,7 @@ export function Features() {
       title: 'Your Safe Space',
       isVideo: true,
       videoSrc: 'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260406_133058_0504132a-0cf3-4450-a370-8ea3b05c95d4.mp4',
-      videoFallback: '/videos/safe_space.mp4',
+      videoFallback: 'https://iitgrdkrhqrrkrdmwvpo.supabase.co/storage/v1/object/public/videos/safe_space.mp4',
       items: ['A calm, judgment-free zone', 'Talk whenever you need', 'No pressure, no expectations', 'You are not alone'],
     },
     {
@@ -36,7 +36,7 @@ export function Features() {
       title: 'AI Companion',
       isVideo: true,
       videoSrc: 'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260411_104032_69319010-2458-492b-b04d-b40a5dfa4482.mp4',
-      videoFallback: '/videos/AI_Companion.mp4',
+      videoFallback: 'https://iitgrdkrhqrrkrdmwvpo.supabase.co/storage/v1/object/public/videos/AI_Companion.mp4',
       items: ['Powered by Claude AI', 'Warm, non-judgmental conversations', 'Understands burnout & imposter syndrome', 'Available 24/7, always free'],
     },
     {
@@ -44,7 +44,7 @@ export function Features() {
       title: 'Curated Articles',
       isVideo: true,
       videoSrc: 'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260324_151826_c7218672-6e92-402c-9e45-f1e0f454bdc4.mp4',
-      videoFallback: '/videos/Curated_articles.mp4',
+      videoFallback: 'https://iitgrdkrhqrrkrdmwvpo.supabase.co/storage/v1/object/public/videos/Curated_articles.mp4',
       items: ['Written for the builder mindset', 'Topics: burnout, anxiety, perfectionism', 'Practical coping strategies', 'Evidence-based insights'],
     },
     {
@@ -52,7 +52,7 @@ export function Features() {
       title: 'Forever Free',
       isVideo: true,
       videoSrc: 'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260525_052706_d2e390fd-1846-4fe7-a4d8-8d2f1c875358.mp4',
-      videoFallback: '/videos/free_forever.mp4',
+      videoFallback: 'https://iitgrdkrhqrrkrdmwvpo.supabase.co/storage/v1/object/public/videos/free_forever.mp4',
       items: ['No subscriptions or paywalls', 'Supported by community donations', 'Access for everyone who needs it', 'No data collection or tracking'],
     }
   ];

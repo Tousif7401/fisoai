@@ -52,8 +52,18 @@ export function Hero() {
           muted
           playsInline
           className="absolute inset-0 w-full h-full object-cover"
-          src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260405_170732_8a9ccda6-5cff-4628-b164-059c500a2b41.mp4"
-        />
+        >
+          {/* Primary: CloudFront */}
+          <source
+            src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260405_170732_8a9ccda6-5cff-4628-b164-059c500a2b41.mp4"
+            type="video/mp4"
+          />
+          {/* Fallback: Supabase */}
+          <source
+            src="https://iitgrdkrhqrrkrdmwvpo.supabase.co/storage/v1/object/public/videos/Hero.mp4"
+            type="video/mp4"
+          />
+        </video>
 
         {/* Noise Overlay */}
         <div className="absolute inset-0 noise-overlay opacity-[0.7] mix-blend-overlay pointer-events-none" />
