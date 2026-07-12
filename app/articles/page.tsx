@@ -3,9 +3,24 @@
 import ArticleBentoGrid from "@/components/ui/bento-articles";
 import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { PageLoader } from "@/components/PageLoader";
+import { useState } from "react";
 
 export default function ArticlesPage() {
   const router = useRouter();
+  const [showLoader, setShowLoader] = useState(false);
+
+  const handleBack = () => {
+    setShowLoader(true);
+    // Navigate after a delay to let the loader animation be visible
+    setTimeout(() => {
+      router.push("/");
+    }, 1500);
+  };
+
+  if (showLoader) {
+    return <PageLoader onComplete={() => {}} />;
+  }
 
   return (
     <div className="min-h-screen bg-black relative">
@@ -17,7 +32,7 @@ export default function ArticlesPage() {
 
       {/* Back Button */}
       <button
-        onClick={() => router.push("/")}
+        onClick={handleBack}
         className="absolute top-8 left-8 group flex items-center gap-2 rounded-full px-4 py-2 text-black font-medium text-sm transition-all hover:gap-3 z-50"
         style={{ backgroundColor: "#FFFFFF" }}
         onMouseEnter={(e) => {

@@ -15,6 +15,11 @@ export function Footer() {
     setCurrentYear(new Date().getFullYear());
   }, []);
 
+  const handleEmailClick = () => {
+    const gmailUrl = 'https://mail.google.com/mail/?view=cm&fs=1&to=calmify.devteam@gmail.com&su=Calmify+Contact';
+    window.open(gmailUrl, '_blank', 'width=600,height=600');
+  };
+
   const navLinks = [
     { label: 'About', href: '/about' },
     { label: 'Articles', href: '/articles' },
@@ -24,7 +29,7 @@ export function Footer() {
   const socialLinks = [
     { icon: Github, href: 'https://github.com/Tousif7401', label: 'GitHub' },
     { icon: Twitter, href: 'https://x.com/mohammed_t41990', label: 'Twitter' },
-    { icon: Mail, href: 'mailto:calmify.devteam@gmail.com', label: 'Email' },
+    { icon: Mail, href: 'https://mail.google.com/mail/?view=cm&fs=1&to=calmify.devteam@gmail.com&su=Calmify+Contact', label: 'Email' },
   ];
 
   return (
@@ -172,25 +177,25 @@ export function Footer() {
             </h4>
             <ul className="space-y-4">
               <li className="flex items-center space-x-3">
-                <Link
-                  href="mailto:calmify.devteam@gmail.com"
+                <button
+                  onClick={handleEmailClick}
                   className="transition-colors"
-                  style={{ color: '#DEDBC8' }}
+                  style={{ color: '#DEDBC8', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
                   onMouseEnter={(e) => e.currentTarget.style.color = '#E1E0CC'}
                   onMouseLeave={(e) => e.currentTarget.style.color = '#DEDBC8'}
                   aria-label="Send email"
                 >
                   <Mail size={18} />
-                </Link>
-                <Link
-                  href="mailto:calmify.devteam@gmail.com"
+                </button>
+                <button
+                  onClick={handleEmailClick}
                   className="text-sm transition-colors"
-                  style={{ color: '#999' }}
+                  style={{ color: '#999', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
                   onMouseEnter={(e) => e.currentTarget.style.color = '#E1E0CC'}
                   onMouseLeave={(e) => e.currentTarget.style.color = '#999'}
                 >
                   calmify.devteam@gmail.com
-                </Link>
+                </button>
               </li>
             </ul>
           </div>
@@ -203,6 +208,35 @@ export function Footer() {
             <div className="flex items-center gap-4">
               {socialLinks.map((social) => {
                 const Icon = social.icon;
+                const isMail = social.label === 'Email';
+
+                if (isMail) {
+                  return (
+                    <button
+                      key={social.label}
+                      onClick={handleEmailClick}
+                      aria-label={social.label}
+                      className="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-110"
+                      style={{ backgroundColor: '#212121', border: 'none', cursor: 'pointer' }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#DEDBC8'}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#212121'}
+                    >
+                      <Icon
+                        className="w-5 h-5"
+                        style={{ color: '#E1E0CC' }}
+                        onMouseEnter={(e) => {
+                          const target = e.currentTarget as SVGElement;
+                          target.setAttribute('style', 'color: #000');
+                        }}
+                        onMouseLeave={(e) => {
+                          const target = e.currentTarget as SVGElement;
+                          target.setAttribute('style', 'color: #E1E0CC');
+                        }}
+                      />
+                    </button>
+                  );
+                }
+
                 return (
                   <Link
                     key={social.label}
@@ -242,6 +276,24 @@ export function Footer() {
           <div className="flex space-x-6">
             {socialLinks.map(({ icon, label, href }) => {
               const Icon = icon;
+              const isMail = label === 'Email';
+
+              if (isMail) {
+                return (
+                  <button
+                    key={label}
+                    onClick={handleEmailClick}
+                    aria-label={label}
+                    className="transition-colors relative z-[60]"
+                    style={{ color: '#666', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+                    onMouseEnter={(e) => e.currentTarget.style.color = '#DEDBC8'}
+                    onMouseLeave={(e) => e.currentTarget.style.color = '#666'}
+                  >
+                    <Icon size={20} />
+                  </button>
+                );
+              }
+
               return (
                 <Link
                   key={label}
