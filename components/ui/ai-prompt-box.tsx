@@ -656,8 +656,8 @@ export const PromptInputBox = React.forwardRef((props: PromptInputBoxProps, ref:
             <PromptInputAction tooltip="Upload image (Coming soon)">
               <button
                 onClick={() => uploadInputRef.current?.click()}
-                className="flex h-8 w-8 text-gray-400 cursor-pointer items-center justify-center rounded-full transition-colors hover:bg-white/10 hover:text-gray-300"
-                disabled={isRecording}
+                className="flex h-8 w-8 text-gray-400 cursor-not-allowed items-center justify-center rounded-full transition-colors opacity-50"
+                disabled
               >
                 <Paperclip className="h-5 w-5 transition-colors" />
                 <input
@@ -677,12 +677,12 @@ export const PromptInputBox = React.forwardRef((props: PromptInputBoxProps, ref:
               <PromptInputAction tooltip="Search web (Coming soon)">
                 <button
                   type="button"
-                  onClick={() => handleToggleChange("search")}
+                  disabled
                   className={cn(
-                    "rounded-full transition-all flex items-center gap-1 px-2 py-1 border h-8",
+                    "rounded-full transition-all flex items-center gap-1 px-2 py-1 border h-8 cursor-not-allowed opacity-50",
                     showSearch
                       ? "bg-[#1EAEDB]/15 border-[#1EAEDB] text-[#1EAEDB]"
-                      : "bg-transparent border-transparent text-gray-400 hover:text-gray-300"
+                      : "bg-transparent border-transparent text-gray-400"
                   )}
                 >
                   <div className="w-5 h-5 flex items-center justify-center flex-shrink-0">
@@ -715,12 +715,12 @@ export const PromptInputBox = React.forwardRef((props: PromptInputBoxProps, ref:
               <PromptInputAction tooltip="Deep thinking (Coming soon)">
                 <button
                   type="button"
-                  onClick={() => handleToggleChange("think")}
+                  disabled
                   className={cn(
-                    "rounded-full transition-all flex items-center gap-1 px-2 py-1 border h-8",
+                    "rounded-full transition-all flex items-center gap-1 px-2 py-1 border h-8 cursor-not-allowed opacity-50",
                     showThink
                       ? "bg-[#8B5CF6]/15 border-[#8B5CF6] text-[#8B5CF6]"
-                      : "bg-transparent border-transparent text-gray-400 hover:text-gray-300"
+                      : "bg-transparent border-transparent text-gray-400"
                   )}
                 >
                   <div className="w-5 h-5 flex items-center justify-center flex-shrink-0">
@@ -753,12 +753,12 @@ export const PromptInputBox = React.forwardRef((props: PromptInputBoxProps, ref:
               <PromptInputAction tooltip="Canvas mode (Coming soon)">
                 <button
                   type="button"
-                  onClick={handleCanvasToggle}
+                  disabled
                   className={cn(
-                    "rounded-full transition-all flex items-center gap-1 px-2 py-1 border h-8",
+                    "rounded-full transition-all flex items-center gap-1 px-2 py-1 border h-8 cursor-not-allowed opacity-50",
                     showCanvas
                       ? "bg-[#F97316]/15 border-[#F97316] text-[#F97316]"
-                      : "bg-transparent border-transparent text-gray-400 hover:text-gray-300"
+                      : "bg-transparent border-transparent text-gray-400"
                   )}
                 >
                   <div className="w-5 h-5 flex items-center justify-center flex-shrink-0">
@@ -808,14 +808,13 @@ export const PromptInputBox = React.forwardRef((props: PromptInputBoxProps, ref:
                   ? "bg-transparent hover:bg-white/10 text-red-500 hover:text-red-400"
                   : hasContent
                   ? "bg-white hover:bg-white/80 text-[#1F2023]"
-                  : "bg-transparent hover:bg-white/10 text-black hover:text-black/70"
+                  : "bg-transparent text-black opacity-50 cursor-not-allowed"
               )}
               onClick={() => {
                 if (isRecording) setIsRecording(false);
                 else if (hasContent) handleSubmit();
-                else setIsRecording(true);
               }}
-              disabled={isLoading && !hasContent}
+              disabled={isLoading && !hasContent || !hasContent}
             >
               {isLoading ? (
                 <Square className="h-4 w-4 fill-white animate-pulse" />
