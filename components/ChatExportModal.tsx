@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { X, Download, FileText, Code, FileJson } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import * as chatService from '@/lib/supabase/chat';
@@ -60,6 +60,7 @@ export function ChatExportModal({
         generatePreview();
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, conversationId, initialMessages.length]);
 
   // Regenerate preview when format or messages change
@@ -67,6 +68,7 @@ export function ChatExportModal({
     if (messages.length > 0) {
       generatePreview();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [format, messages]);
 
   const generatePreview = () => {

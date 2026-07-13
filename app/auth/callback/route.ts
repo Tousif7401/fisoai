@@ -29,7 +29,12 @@ export async function GET(request: Request) {
       const userEmail = data.user.email || null
 
       // Create or update user profile with OAuth metadata
-      const profileData: any = {
+      const profileData: {
+        id: string;
+        full_name?: string;
+        avatar_url?: string | null;
+        email?: string | null;
+      } = {
         id: data.user.id,
         full_name: data.user.user_metadata.full_name || data.user.user_metadata.name || data.user.user_metadata.user_name,
       }

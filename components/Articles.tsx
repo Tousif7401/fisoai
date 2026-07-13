@@ -76,7 +76,6 @@ export function Articles() {
         {/* Articles Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           {articles.map((article, index) => {
-            const isHovered = hoveredIndex === index;
             const isDimmed = hoveredIndex !== null && hoveredIndex !== index;
             const isClicked = clickedIndex === index;
 
@@ -142,7 +141,7 @@ export function Articles() {
 
         {/* Browse All Link */}
         <div className="mt-10 text-center">
-          <a
+          <Link
             href="/articles"
             onClick={handleBrowseAll}
             className="inline-flex items-center gap-2 hover:gap-3 transition-all text-sm cursor-pointer"
@@ -150,7 +149,7 @@ export function Articles() {
           >
             Browse all articles
             <ArrowRight className="w-4 h-4" strokeWidth={2} />
-          </a>
+          </Link>
         </div>
       </div>
     </section>
