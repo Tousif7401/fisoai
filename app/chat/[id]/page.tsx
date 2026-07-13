@@ -81,9 +81,9 @@ function getArticleSuggestion(message: string): { slug: string; title: string; e
 }
 
 // Get time-based greeting
-const getTimeBasedGreeting = (): string => {
+const getTimeBasedGreeting = (userName?: string): string => {
   const hour = new Date().getHours();
-  const name = "Mohammed";
+  const name = userName || "there";
 
   if (hour >= 5 && hour < 12) {
     return `Good morning, ${name}. How are you looking to start your day?`;
@@ -307,9 +307,9 @@ export default function ChatPage() {
   // Initialize greeting on client side only
   useEffect(() => {
     if (isAuthenticated) {
-      setGreeting(getTimeBasedGreeting());
+      setGreeting(getTimeBasedGreeting(profileName));
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, profileName]);
 
   // Typewriter effect for greeting
   useEffect(() => {
@@ -425,13 +425,11 @@ export default function ChatPage() {
 
       if (result.success) {
         const newConv = result.data;
-        console.log('New conversation created:', newConv);
         setConversationId(newConv.id);
         setConversationTitle(newConv.title ?? null);
         // Use shallow routing to avoid page remount
         window.history.replaceState({}, '', `/chat/${newConv.id}`);
         // Dispatch event to notify sidebar of new conversation
-        console.log('Dispatching conversation-created event with:', newConv);
         window.dispatchEvent(new CustomEvent('conversation-created', { detail: { conversation: newConv } }));
 
         // Start chat mode only after successful conversation creation
@@ -460,7 +458,6 @@ export default function ChatPage() {
       if (!result.success) {
         // Check if it's a daily limit error
         if (result.error?.includes('Daily message limit reached') || result.error?.includes('limit')) {
-          console.log('Daily limit reached, showing modal');
           // Remove the message from UI since it couldn't be saved
           setMessages(prev => prev.slice(0, -1));
           setShowLimitModal(true);
@@ -907,7 +904,7 @@ export default function ChatPage() {
         </motion.div>
 
         {/* Input Area */}
-        <div className="flex flex-col items-center px-4 pb-4 sm:pb-6 relative z-20 pointer-events-auto">
+        <div className="flex flex-col items-center px-4 pb-0 relative z-20 pointer-events-auto">
           {/* Greeting Text - Only visible before chat starts */}
           <AnimatePresence>
             {!hasStartedChat && (
@@ -937,6 +934,13 @@ export default function ChatPage() {
           >
             <PromptInputBox onSend={handleSendMessage} />
           </motion.div>
+        </div>
+
+        {/* AI Disclaimer - Bottom */}
+        <div className="px-4 text-center">
+          <p className="text-[10px] text-white/70">
+            Calmify is AI and can make mistakes. Consider checking important information.
+          </p>
         </div>
 
         {/* Bottom Spacer - keeps input centered initially */}
