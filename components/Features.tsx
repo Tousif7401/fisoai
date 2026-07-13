@@ -1,13 +1,25 @@
 "use client";
 
-import { motion, useInView, AnimatePresence } from 'framer-motion';
+/* eslint-disable @next/next/no-img-element */
+
+import { motion, AnimatePresence } from 'framer-motion';
 import { useRef, useState } from 'react';
 import { Check, ArrowRight, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { WordsPullUpMultiStyle } from './animations';
 
+interface Feature {
+  number: string;
+  title: string;
+  isVideo?: true;
+  videoSrc?: string;
+  videoFallback?: string;
+  backgroundImage?: string;
+  icon?: string;
+  items: string[];
+}
+
 export function Features() {
   const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, margin: '-100px' });
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
@@ -22,7 +34,7 @@ export function Features() {
     }
   ];
 
-  const features = [
+  const features: Feature[] = [
     {
       number: '00',
       title: 'Your Safe Space',
@@ -56,13 +68,6 @@ export function Features() {
       items: ['No subscriptions or paywalls', 'Supported by community donations', 'Access for everyone who needs it', 'No data collection or tracking'],
     }
   ];
-
-  const getFlexValue = (index: number) => {
-    if (hoveredIndex === null) {
-      return 1;
-    }
-    return hoveredIndex === index ? 2.5 : 0.8;
-  };
 
   const openModal = (index: number) => {
     setSelectedIndex(index);
@@ -123,7 +128,7 @@ export function Features() {
               {/* Background - Video or Image */}
               {index === 0 ? (
                 <>
-                  {(feature as any).isVideo ? (
+                  {feature.isVideo ? (
                     <video
                       autoPlay
                       loop
@@ -132,15 +137,15 @@ export function Features() {
                       className="absolute inset-0 w-full h-full object-cover"
                       onError={(e) => {
                         const video = e.target as HTMLVideoElement;
-                        if ((feature as any).videoFallback && video.src !== (feature as any).videoFallback) {
-                          video.src = (feature as any).videoFallback;
+                        if (feature.videoFallback && video.src !== feature.videoFallback) {
+                          video.src = feature.videoFallback;
                         }
                       }}
-                      src={(feature as any).videoSrc}
+                      src={feature.videoSrc}
                     />
                   ) : (
                     <img
-                      src={(feature as any).backgroundImage}
+                      src={feature.backgroundImage}
                       alt={feature.title}
                       className="absolute inset-0 w-full h-full object-cover"
                     />
@@ -152,7 +157,7 @@ export function Features() {
                   animate={{ scale: hoveredIndex === index ? 1.15 : 1 }}
                   transition={{ duration: 0.5, ease: 'easeInOut' }}
                 >
-                  {(feature as any).isVideo ? (
+                  {feature.isVideo ? (
                     <video
                       autoPlay
                       loop
@@ -161,15 +166,15 @@ export function Features() {
                       className="absolute inset-0 w-full h-full object-cover"
                       onError={(e) => {
                         const video = e.target as HTMLVideoElement;
-                        if ((feature as any).videoFallback && video.src !== (feature as any).videoFallback) {
-                          video.src = (feature as any).videoFallback;
+                        if (feature.videoFallback && video.src !== feature.videoFallback) {
+                          video.src = feature.videoFallback;
                         }
                       }}
-                      src={(feature as any).videoSrc}
+                      src={feature.videoSrc}
                     />
                   ) : (
                     <img
-                      src={(feature as any).backgroundImage}
+                      src={feature.backgroundImage}
                       alt={feature.title}
                       className="absolute inset-0 w-full h-full object-cover"
                     />
@@ -208,9 +213,9 @@ export function Features() {
                   }}
                   transition={{ duration: 0.3 }}
                 >
-                  {(feature as any).icon && (
+                  {feature.icon && (
                     <img
-                      src={(feature as any).icon}
+                      src={feature.icon}
                       alt=""
                       className="w-14 h-14 sm:w-16 sm:h-16 rounded"
                     />
@@ -300,7 +305,7 @@ export function Features() {
               {/* Background - Video or Image */}
               {selectedIndex === 0 ? (
                 <>
-                  {(features[selectedIndex] as any).isVideo ? (
+                  {features[selectedIndex].isVideo ? (
                     <video
                       muted
                       playsInline
@@ -308,15 +313,15 @@ export function Features() {
                       onError={(e) => {
                         const video = e.target as HTMLVideoElement;
                         const feature = features[selectedIndex];
-                        if ((feature as any).videoFallback && video.src !== (feature as any).videoFallback) {
-                          video.src = (feature as any).videoFallback;
+                        if (feature.videoFallback && video.src !== feature.videoFallback) {
+                          video.src = feature.videoFallback;
                         }
                       }}
-                      src={(features[selectedIndex] as any).videoSrc}
+                      src={features[selectedIndex].videoSrc}
                     />
                   ) : (
                     <img
-                      src={(features[selectedIndex] as any).backgroundImage}
+                      src={features[selectedIndex].backgroundImage}
                       alt={features[selectedIndex].title}
                       className="absolute inset-0 w-full h-full object-cover rounded-2xl -z-10"
                     />
@@ -326,7 +331,7 @@ export function Features() {
                 <motion.div
                   className="absolute inset-0 w-full h-full"
                 >
-                  {(features[selectedIndex] as any).isVideo ? (
+                  {features[selectedIndex].isVideo ? (
                     <video
                       muted
                       playsInline
@@ -334,15 +339,15 @@ export function Features() {
                       onError={(e) => {
                         const video = e.target as HTMLVideoElement;
                         const feature = features[selectedIndex];
-                        if ((feature as any).videoFallback && video.src !== (feature as any).videoFallback) {
-                          video.src = (feature as any).videoFallback;
+                        if (feature.videoFallback && video.src !== feature.videoFallback) {
+                          video.src = feature.videoFallback;
                         }
                       }}
-                      src={(features[selectedIndex] as any).videoSrc}
+                      src={features[selectedIndex].videoSrc}
                     />
                   ) : (
                     <img
-                      src={(features[selectedIndex] as any).backgroundImage}
+                      src={features[selectedIndex].backgroundImage}
                       alt={features[selectedIndex].title}
                       className="absolute inset-0 w-full h-full object-cover rounded-2xl -z-10"
                     />
@@ -353,9 +358,9 @@ export function Features() {
 
               {/* Icon and Number */}
               <div className="flex items-center gap-3 mb-4">
-                {(features[selectedIndex] as any).icon && (
+                {features[selectedIndex].icon && (
                   <img
-                    src={(features[selectedIndex] as any).icon}
+                    src={features[selectedIndex].icon}
                     alt=""
                     className="w-16 h-16 rounded"
                   />
