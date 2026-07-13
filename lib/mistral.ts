@@ -133,7 +133,8 @@ export async function sendMessage(
       ],
     });
 
-    return response.choices[0]?.message?.content || '';
+    const content = response.choices[0]?.message?.content;
+    return typeof content === 'string' ? content : String(content || '');
   } catch (error) {
     console.error('Mistral API error:', error);
     throw new Error('Failed to get response from Calmify AI. Please try again.');
@@ -176,14 +177,13 @@ export async function* streamMessage(
       console.log('Raw chunk:', JSON.stringify(chunk).substring(0, 200));
 
       // Mistral streaming response structure
-      const content = chunk.data?.choices?.[0]?.delta?.content ||
-                      chunk.choices?.[0]?.delta?.content ||
-                      chunk.data?.content ||
-                      chunk.content;
+      // The chunk is a CompletionEvent which wraps CompletionChunk data
+      const content = chunk.data?.choices?.[0]?.delta?.content;
 
       if (content) {
-        console.log('Received chunk:', content.substring(0, 50));
-        yield content;
+        const contentStr = typeof content === 'string' ? content : String(content);
+        console.log('Received chunk:', contentStr.substring(0, 50));
+        yield contentStr;
       }
     }
 
