@@ -28,7 +28,7 @@ export interface ConversationWithMessages {
  * Returns a result object with success status
  */
 export async function createConversation(
-  userId: string,
+  _userId: string,
   title?: string
 ): Promise<{ success: true; data: Conversation } | { success: false; error: string }> {
   try {
@@ -45,7 +45,7 @@ export async function createConversation(
       try {
         const errorData = await response.json();
         errorMessage = errorData.error || errorMessage;
-      } catch (e) {
+      } catch {
         // If JSON parsing fails, use status text
         errorMessage = response.statusText || errorMessage;
       }
@@ -54,7 +54,7 @@ export async function createConversation(
 
     const data = await response.json();
     return { success: true, data };
-  } catch (error) {
+  } catch {
     // Return error instead of throwing to avoid Next.js error overlay in dev
     return { success: false, error: 'Failed to create conversation' };
   }
@@ -63,9 +63,7 @@ export async function createConversation(
 /**
  * Get all user's conversations grouped by date
  */
-export async function getUserConversations(
-  userId: string
-): Promise<{
+export async function getUserConversations(): Promise<{
   pinned: Conversation[];
   today: Conversation[];
   yesterday: Conversation[];
@@ -149,14 +147,14 @@ export async function addMessage(
       try {
         const errorData = await response.json();
         errorMessage = errorData.error || errorMessage;
-      } catch (e) {
+      } catch {
         errorMessage = response.statusText || errorMessage;
       }
       return { success: false, error: errorMessage };
     }
 
     return { success: true };
-  } catch (error) {
+  } catch {
     return { success: false, error: 'Failed to add message' };
   }
 }
@@ -203,7 +201,7 @@ export async function searchConversations(
 ): Promise<Conversation[]> {
   // This would require a new API endpoint or Supabase RPC function
   // For now, filter on the client side
-  const conversations = await getUserConversations(userId);
+  const conversations = await getUserConversations();
   const all = [
     ...conversations.pinned,
     ...conversations.today,

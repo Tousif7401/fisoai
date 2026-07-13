@@ -5,8 +5,20 @@
 
 declare global {
   interface Window {
-    Razorpay: any;
+    Razorpay: new (options: unknown) => RazorpayInstance;
   }
+}
+
+interface RazorpayInstance {
+  open: () => void;
+  close: () => void;
+  on: (event: string, handler: () => void) => void;
+}
+
+interface RazorpayResponse {
+  razorpay_payment_id: string;
+  razorpay_order_id?: string;
+  razorpay_signature?: string;
 }
 
 export interface RazorpayOptions {
@@ -142,7 +154,7 @@ export async function initializeRazorpay(
     },
     method: options.method || defaultMethods,
     config: options.config || defaultConfig,
-    handler: function(response: any) {
+    handler: function(response: RazorpayResponse) {
       callbacks.onSuccess(response);
     },
     modal: {

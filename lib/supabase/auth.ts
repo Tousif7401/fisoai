@@ -66,7 +66,7 @@ export async function getProfile(): Promise<Profile | null> {
 
   if (!user) return null
 
-  const { data, error } = await supabase
+  const { data } = await supabase
     .from('profiles')
     .select('*')
     .eq('id', user.id)
