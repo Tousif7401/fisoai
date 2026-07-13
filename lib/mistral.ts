@@ -188,9 +188,10 @@ export async function* streamMessage(
     }
 
     console.log('Stream completed successfully');
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Mistral streaming error:', error);
     console.error('Error details:', JSON.stringify(error, null, 2));
-    throw new Error(`Failed to stream response: ${error.message || 'Unknown error'}`);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    throw new Error(`Failed to stream response: ${errorMessage}`);
   }
 }

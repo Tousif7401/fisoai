@@ -128,10 +128,11 @@ export async function* streamMessage(
       }
     }
     console.log('Stream completed successfully');
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Gemini streaming error:', error);
     console.error('Error details:', JSON.stringify(error, null, 2));
-    throw new Error(`Failed to stream response: ${error.message || 'Unknown error'}`);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    throw new Error(`Failed to stream response: ${errorMessage}`);
   }
 }
 
@@ -165,7 +166,7 @@ export function formatChatHistory(messages: Array<{ role: 'user' | 'assistant'; 
   }
 
   // Slice from the first user message
-  let validHistory: ChatMessage[] = formatted.slice(firstUserIndex);
+  const validHistory: ChatMessage[] = formatted.slice(firstUserIndex);
 
   // Ensure the sequence alternates correctly (user, model, user, model, ...)
   // If we have consecutive messages with the same role, remove the earlier ones
