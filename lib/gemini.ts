@@ -14,8 +14,6 @@ if (!GEMINI_API_KEY) {
   throw new Error('GEMINI_API_KEY is not set in environment variables');
 }
 
-console.log('Gemini API Key format:', GEMINI_API_KEY.substring(0, 10) + '...');
-
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
 /**
@@ -108,29 +106,22 @@ export async function* streamMessage(
   conversationHistory?: ChatMessage[]
 ): AsyncGenerator<string, void, unknown> {
   try {
-    console.log('Starting Gemini stream with message:', userMessage);
-    console.log('Conversation history:', conversationHistory);
-
     const model = createCalmifyModel();
     const chat = model.startChat({
       history: conversationHistory || [],
     });
 
-    console.log('Sending message to Gemini...');
     const result = await chat.sendMessageStream(userMessage);
 
-    console.log('Stream started, receiving chunks...');
     for await (const chunk of result.stream) {
       const chunkText = chunk.text();
       if (chunkText) {
-        console.log('Received chunk:', chunkText.substring(0, 50));
         yield chunkText;
       }
     }
-    console.log('Stream completed successfully');
   } catch (error: unknown) {
-    console.error('Gemini streaming error:', error);
-    console.error('Error details:', JSON.stringify(error, null, 2));
+    // Only log errors, not debug info
+    console.error('Gemini streaming error:', error instanceof Error ? error.message : 'Unknown error');
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     throw new Error(`Failed to stream response: ${errorMessage}`);
   }
@@ -150,7 +141,6 @@ export function formatChatHistory(messages: Array<{ role: 'user' | 'assistant'; 
     parts: [{ text: msg.content }],
   }));
 
-  console.log('Formatted history before cleanup:', formatted.map(f => ({ role: f.role, text: f.parts[0].text.substring(0, 30) })));
 
   // Gemini requires conversation history to:
   // 1. Start with a 'user' message
@@ -189,7 +179,6 @@ export function formatChatHistory(messages: Array<{ role: 'user' | 'assistant'; 
     cleanedHistory.pop();
   }
 
-  console.log('Cleaned history:', cleanedHistory.map(f => ({ role: f.role, text: f.parts[0].text.substring(0, 30) })));
 
   return cleanedHistory;
 }

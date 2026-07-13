@@ -153,15 +153,10 @@ export async function* streamMessage(
   conversationHistory?: ChatMessage[]
 ): AsyncGenerator<string, void, unknown> {
   try {
-    console.log('Starting Mistral stream with message:', userMessage);
-    console.log('Conversation history:', conversationHistory);
-
     const messages: ChatMessage[] = [
       ...(conversationHistory || []),
       { role: 'user', content: userMessage },
     ];
-
-    console.log('Sending message to Mistral...');
 
     const stream = await mistral.chat.stream({
       model: 'mistral-small-latest',
@@ -171,26 +166,19 @@ export async function* streamMessage(
       ],
     });
 
-    console.log('Stream started, receiving chunks...');
-
     for await (const chunk of stream) {
-      console.log('Raw chunk:', JSON.stringify(chunk).substring(0, 200));
-
       // Mistral streaming response structure
       // The chunk is a CompletionEvent which wraps CompletionChunk data
       const content = chunk.data?.choices?.[0]?.delta?.content;
 
       if (content) {
         const contentStr = typeof content === 'string' ? content : String(content);
-        console.log('Received chunk:', contentStr.substring(0, 50));
         yield contentStr;
       }
     }
-
-    console.log('Stream completed successfully');
   } catch (error: unknown) {
-    console.error('Mistral streaming error:', error);
-    console.error('Error details:', JSON.stringify(error, null, 2));
+    // Only log errors, not debug info
+    console.error('Mistral streaming error:', error instanceof Error ? error.message : 'Unknown error');
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     throw new Error(`Failed to stream response: ${errorMessage}`);
   }
