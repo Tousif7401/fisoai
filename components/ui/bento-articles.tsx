@@ -2,8 +2,7 @@
 
 import { clsx } from "clsx";
 import { motion } from "framer-motion";
-import { Clock, Calendar, ArrowRight } from "lucide-react";
-import { articles } from "@/lib/articles";
+import { Clock, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -30,7 +29,6 @@ export default function ArticleBentoGrid() {
               <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent" />
             }
             className="max-lg:rounded-t-4xl lg:col-span-2 lg:rounded-tl-4xl"
-            slug="overcoming-imposter-syndrome"
             index={0}
             hoveredIndex={hoveredIndex}
             setHoveredIndex={setHoveredIndex}
@@ -46,7 +44,6 @@ export default function ArticleBentoGrid() {
               <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent" />
             }
             className="lg:col-span-2 lg:rounded-tr-4xl"
-            slug="burnout-recovery-builders-guide"
             index={1}
             hoveredIndex={hoveredIndex}
             setHoveredIndex={setHoveredIndex}
@@ -62,7 +59,6 @@ export default function ArticleBentoGrid() {
               <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent" />
             }
             className="lg:col-span-2"
-            slug="shipping-anxiety-why-we-fear-done"
             index={2}
             hoveredIndex={hoveredIndex}
             setHoveredIndex={setHoveredIndex}
@@ -78,7 +74,6 @@ export default function ArticleBentoGrid() {
               <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent" />
             }
             className="lg:col-span-2 lg:rounded-bl-4xl"
-            slug="context-switching-is-killing-creativity"
             index={3}
             hoveredIndex={hoveredIndex}
             setHoveredIndex={setHoveredIndex}
@@ -88,13 +83,12 @@ export default function ArticleBentoGrid() {
           <ArticleBentoCard
             category="Motivation"
             title="Lost Your Spark?"
-            description="You don't need more hustle. You don't need more discipline. You need actual rest — the kind most builders never get."
+            description="You don&apos;t need more hustle. You don&apos;t need more discipline. You need actual rest — the kind most builders never get."
             readTime="6 min read"
             graphic={
               <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent" />
             }
             className="lg:col-span-2"
-            slug="lost-your-spark-its-not-discipline-its-rest"
             index={4}
             hoveredIndex={hoveredIndex}
             setHoveredIndex={setHoveredIndex}
@@ -119,7 +113,6 @@ export function ArticleBentoCard({
   readTime,
   graphic,
   fade = [],
-  slug,
   index,
   hoveredIndex,
   setHoveredIndex,
@@ -132,12 +125,10 @@ export function ArticleBentoCard({
   readTime?: string;
   graphic?: React.ReactNode;
   fade?: ("top" | "bottom")[];
-  slug: string;
   index: number;
   hoveredIndex: number | null;
   setHoveredIndex: React.Dispatch<React.SetStateAction<number | null>>;
 }) {
-  const isHovered = hoveredIndex === index;
   const isDimmed = hoveredIndex !== null && hoveredIndex !== index;
 
   return (
@@ -217,7 +208,7 @@ export function MissionCard({ className }: { className?: string }) {
             More on the way
           </h3>
           <p className="text-sm text-gray-400 leading-relaxed mb-4">
-            Your mental health journey matters. We're crafting more stories, insights, and tools to support builders like you.
+            Your mental health journey matters. We&apos;re crafting more stories, insights, and tools to support builders like you.
           </p>
           <div className="flex items-center justify-center gap-2 text-xs text-[#DEDBC8]/60">
             <div className="w-2 h-2 rounded-full bg-[#DEDBC8]/40 animate-pulse" />

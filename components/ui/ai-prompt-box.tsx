@@ -1,3 +1,5 @@
+/* eslint-disable @next/next/no-img-element */
+
 import React from "react";
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
@@ -404,7 +406,7 @@ const PromptInputTextarea: React.FC<PromptInputTextareaProps & React.ComponentPr
   );
 };
 
-interface PromptInputActionsProps extends React.HTMLAttributes<HTMLDivElement> {}
+type PromptInputActionsProps = React.HTMLAttributes<HTMLDivElement>;
 const PromptInputActions: React.FC<PromptInputActionsProps> = ({ children, className, ...props }) => (
   <div className={cn("flex items-center gap-2", className)} {...props}>
     {children}
@@ -483,7 +485,7 @@ export const PromptInputBox = React.forwardRef((props: PromptInputBoxProps, ref:
 
   const isImageFile = (file: File) => file.type.startsWith("image/");
 
-  const processFile = (file: File) => {
+  const processFile = React.useCallback((file: File) => {
     if (!isImageFile(file)) {
       console.log("Only image files are allowed");
       return;
@@ -496,7 +498,7 @@ export const PromptInputBox = React.forwardRef((props: PromptInputBoxProps, ref:
     const reader = new FileReader();
     reader.onload = (e) => setFilePreviews({ [file.name]: e.target?.result as string });
     reader.readAsDataURL(file);
-  };
+  }, []);
 
   const handleDragOver = React.useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -514,7 +516,7 @@ export const PromptInputBox = React.forwardRef((props: PromptInputBoxProps, ref:
     const files = Array.from(e.dataTransfer.files);
     const imageFiles = files.filter((file) => isImageFile(file));
     if (imageFiles.length > 0) processFile(imageFiles[0]);
-  }, []);
+  }, [processFile]);
 
   const handleRemoveFile = (index: number) => {
     const fileToRemove = files[index];
@@ -537,7 +539,7 @@ export const PromptInputBox = React.forwardRef((props: PromptInputBoxProps, ref:
         }
       }
     }
-  }, []);
+  }, [processFile]);
 
   React.useEffect(() => {
     document.addEventListener("paste", handlePaste);
