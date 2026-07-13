@@ -4,8 +4,6 @@ import { PromptInputBox } from "@/components/ui/ai-prompt-box";
 
 const DemoOne = () => {
   const handleSendMessage = (message: string, files?: File[]) => {
-    console.log('Message:', message);
-    console.log('Files:', files);
   };
 
   return (

@@ -77,7 +77,6 @@ const ConversationSection = memo(({ title, conversations, showPin = true, collap
       <button
         onClick={(e) => {
           e.stopPropagation();
-          console.log('Section clicked:', title, 'isExpanded:', isExpanded);
           onToggleSection(title);
         }}
         className="w-full flex items-center gap-2 px-3 py-1 text-[10px] text-black/40 hover:text-black/60 transition-colors font-medium uppercase tracking-wide"
@@ -395,10 +394,8 @@ function ConversationList({ currentConversationId, isCollapsed = false, onMobile
   // Listen for new conversations created from the chat page
   useEffect(() => {
     const handleConversationCreated = (event: Event) => {
-      console.log('conversation-created event received:', event);
       const customEvent = event as CustomEvent<{ conversation: Conversation }>;
       const conversation = customEvent.detail.conversation;
-      console.log('Conversation from event:', conversation);
       if (!conversation) return;
 
       // Add the new conversation to the appropriate section
@@ -440,15 +437,12 @@ function ConversationList({ currentConversationId, isCollapsed = false, onMobile
       };
 
       const section = getConversationSection(conversation);
-      console.log('Adding conversation to section:', section);
 
       setConversations(prev => {
-        console.log('Previous conversations:', prev);
         const newState = {
           ...prev,
           [section]: [conversation, ...prev[section]]
         };
-        console.log('New conversations state:', newState);
         return newState;
       });
     };
