@@ -11,8 +11,6 @@ export async function GET(request: Request) {
     const supabase = await createClient()
     const { data, error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error && data.user) {
-      // Debug: Log user metadata
-      console.log('User metadata:', data.user.user_metadata)
 
       // Check if profile already exists (including email field)
       const { data: existingProfile } = await supabase
@@ -53,7 +51,6 @@ export async function GET(request: Request) {
         profileData.email = userEmail
       }
 
-      console.log('Saving profile data:', profileData)
 
       const { error: profileError } = await supabase
         .from('profiles')
@@ -64,7 +61,6 @@ export async function GET(request: Request) {
       if (profileError) {
         console.error('Error creating profile:', profileError)
       } else {
-        console.log('Profile saved successfully')
       }
 
       const forwardedHost = request.headers.get('x-forwarded-host')

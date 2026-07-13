@@ -15,15 +15,6 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { amount, currency = 'INR', notes = {} } = body;
-
-    // Debug logging
-    console.log('Environment check:', {
-      hasKeyId: !!process.env.RAZORPAY_KEY_ID,
-      hasKeySecret: !!process.env.RAZORPAY_KEY_SECRET,
-      keyIdLength: process.env.RAZORPAY_KEY_ID?.length,
-      nodeEnv: process.env.NODE_ENV,
-    });
-
     // Validate amount
     if (!amount || amount < 1) {
       return NextResponse.json(
