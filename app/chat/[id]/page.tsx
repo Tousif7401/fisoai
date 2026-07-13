@@ -1,19 +1,20 @@
 "use client";
 
+/* eslint-disable @next/next/no-img-element */
+
 import { useState, useRef, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { PromptInputBox } from "@/components/ui/ai-prompt-box";
 import { Sidebar } from '@/components/Sidebar';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bot, User, Plus, Edit2, Check, MoreVertical, Pin, Trash2, Menu, X } from 'lucide-react';
+import { Plus, Edit2, Check, MoreVertical, Pin, Trash2, Menu } from 'lucide-react';
 import { getUser, getProfile } from '@/lib/supabase/auth';
 import { articles } from '@/lib/articles';
+import { avatarList } from '@/components/ui/avatar-picker';
 import * as chatService from '@/lib/supabase/chat';
 import { useToast } from '@/components/ui/toast';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
-import { AvatarPicker, avatarList } from '@/components/ui/avatar-picker';
-import { createBrowserClient } from '@supabase/ssr';
 
 interface Message {
   id: string;
@@ -164,7 +165,6 @@ export default function ChatPage() {
 
   // Message limit modal state
   const [showLimitModal, setShowLimitModal] = useState(false);
-  const [remainingMessages, setRemainingMessages] = useState<number | null>(null);
 
   // User profile state
   const [profileName, setProfileName] = useState('User');
@@ -383,24 +383,6 @@ export default function ChatPage() {
     }
   };
 
-  const handleDeleteConversation = async () => {
-    if (!conversationId) return;
-    if (!confirm('Are you sure you want to delete this conversation?')) return;
-
-    try {
-      await chatService.deleteConversation(conversationId);
-      showSuccess('Conversation deleted');
-      createNewConversation();
-      // Dispatch event to notify sidebar
-      window.dispatchEvent(new CustomEvent('conversation-deleted', { detail: { id: conversationId } }));
-      // Update URL to /chat/new
-      window.history.replaceState({}, '', '/chat/new');
-    } catch (error) {
-      console.error('Failed to delete conversation:', error);
-      showError('Failed to delete conversation');
-    }
-  };
-
   // Handlers for dialog-based deletion (from sidebar)
   const confirmDeleteConversation = async () => {
     if (!conversationToDelete) return;
@@ -431,7 +413,7 @@ export default function ChatPage() {
     setConversationToDelete(null);
   };
 
-  const handleSendMessage = async (message: string, files?: File[]) => {
+  const handleSendMessage = async (message: string) => {
     if (!message.trim()) return;
 
     // Create conversation if none exists
@@ -567,7 +549,7 @@ export default function ChatPage() {
                   if (parsed.chunk) {
                     aiResponse += parsed.chunk;
                   }
-                } catch (e) {
+                } catch {
                   // Skip invalid JSON
                 }
               }
@@ -631,26 +613,6 @@ export default function ChatPage() {
           }
         }
       }
-    }
-  };
-
-  // Get a supportive response based on message content
-  const getSupportiveResponse = (message: string): string => {
-    const lowerMessage = message.toLowerCase();
-
-    // Simple keyword-based supportive responses
-    if (lowerMessage.includes('stress') || lowerMessage.includes('anxious') || lowerMessage.includes('anxiety')) {
-      return "It sounds like you're going through a stressful time. That's really tough, and it's okay to feel this way.";
-    } else if (lowerMessage.includes('tired') || lowerMessage.includes('exhaust') || lowerMessage.includes('burnout')) {
-      return "Burnout and exhaustion are real challenges, especially in our field. Taking time to acknowledge this is the first step.";
-    } else if (lowerMessage.includes('sad') || lowerMessage.includes('down') || lowerMessage.includes('depress')) {
-      return "I'm sorry you're feeling down. These moments happen, and you don't have to navigate them alone.";
-    } else if (lowerMessage.includes('happy') || lowerMessage.includes('good') || lowerMessage.includes('great')) {
-      return "That's wonderful to hear! It's important to acknowledge the good moments too.";
-    } else if (lowerMessage.includes('help') || lowerMessage.includes('advice')) {
-      return "I'm here to listen. Sometimes talking through what's on your mind can help clarify things.";
-    } else {
-      return "Thank you for sharing that with me. How are you feeling about it?";
     }
   };
 
@@ -1019,7 +981,7 @@ export default function ChatPage() {
 
               {/* Message */}
               <p className="text-gray-300 mb-6 leading-relaxed">
-                You've reached your daily message limit of 30 messages. This helps me keep Calmify free for everyone. Come back tomorrow to continue chatting!
+                You&apos;ve reached your daily message limit of 30 messages. This helps me keep Calmify free for everyone. Come back tomorrow to continue chatting!
               </p>
 
               {/* Close Button */}

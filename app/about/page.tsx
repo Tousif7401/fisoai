@@ -14,6 +14,7 @@ export default function AboutPage() {
           {/* Hero Section - Creator Profile */}
           <div className="text-center mb-16">
             <div className="w-48 h-48 mx-auto mb-8 rounded-full overflow-hidden shadow-2xl border-4 border-[#E1E0CC]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/profile-photo.jpeg"
                 alt="Mohammed Tousif"
@@ -43,7 +44,7 @@ export default function AboutPage() {
             <h2 className="text-3xl font-medium text-[#E1E0CC] mb-6">About Me</h2>
             <div className="bg-white/5 rounded-2xl p-8 border border-white/10">
               <p className="text-[#DEDBC8]/80 text-lg leading-relaxed">
-                Hey! I'm Mohammed Tousif, a passionate full-stack developer who loves building products that make a difference.
+                Hey! I&apos;m Mohammed Tousif, a passionate full-stack developer who loves building products that make a difference.
                 I graduated with a B.Tech in Computer Science from RYMEC Ballari and have been crafting web applications that solve real problems.
               </p>
               <p className="text-[#DEDBC8]/80 text-lg leading-relaxed mt-4">
@@ -52,7 +53,7 @@ export default function AboutPage() {
                 where we can talk about these things without judgment.
               </p>
               <p className="text-[#DEDBC8]/80 text-lg leading-relaxed mt-4">
-                When I'm not coding, you'll find me exploring AI/ML, participating in hackathons, or sharing my journey on social media.
+                When I&apos;m not coding, you&apos;ll find me exploring AI/ML, participating in hackathons, or sharing my journey on social media.
               </p>
             </div>
           </section>
@@ -105,9 +106,9 @@ export default function AboutPage() {
             </div>
           </section>
 
-          {/* What I'm Building */}
+          {/* What I&apos;m Building */}
           <section className="mb-16">
-            <h2 className="text-3xl font-medium text-[#E1E0CC] mb-6">What I'm Building</h2>
+            <h2 className="text-3xl font-medium text-[#E1E0CC] mb-6">What I&apos;m Building</h2>
             <div className="space-y-4">
               {/* Calmify AI */}
               <div className="bg-gradient-to-br from-purple-500/10 to-blue-500/10 rounded-2xl p-8 border border-purple-500/20">
@@ -220,9 +221,9 @@ export default function AboutPage() {
 
           {/* Connect With Me */}
           <section className="mb-16">
-            <h2 className="text-3xl font-medium text-[#E1E0CC] mb-6">Let's Connect</h2>
+            <h2 className="text-3xl font-medium text-[#E1E0CC] mb-6">Let&apos;s Connect</h2>
             <p className="text-[#DEDBC8]/80 mb-6">
-              I'm always open to collaborations, interesting projects, or just a friendly chat about tech and AI.
+              I&apos;m always open to collaborations, interesting projects, or just a friendly chat about tech and AI.
             </p>
             <div className="flex flex-wrap gap-4">
               <Link

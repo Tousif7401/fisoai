@@ -59,7 +59,7 @@ export default function NotFound() {
 
           {/* Message - Same color as Donate page description */}
           <p className="text-lg md:text-xl text-[#b0a87a] mb-8 leading-relaxed max-w-md mx-auto">
-            Oops! This page doesn't exist. Let's get you back to safety.
+            Oops! This page doesn&apos;t exist. Let&apos;s get you back to safety.
           </p>
 
           {/* Action Buttons */}
