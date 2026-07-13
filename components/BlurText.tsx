@@ -3,15 +3,21 @@
 import { motion } from 'framer-motion';
 import { useEffect, useRef, useState, useMemo } from 'react';
 
-const buildKeyframes = (from: any, steps: any[]) => {
+const buildKeyframes = (from: AnimationState, steps: AnimationState[]) => {
   const keys = new Set([...Object.keys(from), ...steps.flatMap(s => Object.keys(s))]);
 
-  const keyframes: any = {};
+  const keyframes: Record<string, (string | number)[]> = {};
   keys.forEach(k => {
-    keyframes[k] = [from[k], ...steps.map(s => s[k])];
+    keyframes[k] = [from[k as keyof AnimationState], ...steps.map(s => s[k as keyof AnimationState])] as (string | number)[];
   });
   return keyframes;
 };
+
+interface AnimationState {
+  filter?: string;
+  opacity?: number;
+  y?: number;
+}
 
 interface BlurTextProps {
   text?: string;
@@ -21,8 +27,8 @@ interface BlurTextProps {
   direction?: 'top' | 'bottom';
   threshold?: number;
   rootMargin?: string;
-  animationFrom?: any;
-  animationTo?: any;
+  animationFrom?: AnimationState;
+  animationTo?: AnimationState[];
   easing?: (t: number) => number;
   onAnimationComplete?: () => void;
   stepDuration?: number;
@@ -98,16 +104,18 @@ export function BlurText({
         const spanTransition = {
           duration: totalDuration,
           times,
-          delay: (index * delay) / 1000
+          delay: (index * delay) / 1000,
+          ease: easing
         };
-        (spanTransition as any).ease = easing;
 
         return (
           <motion.span
             className="inline-block will-change-[transform,filter,opacity]"
             key={index}
-            initial={fromSnapshot}
-            animate={inView ? animateKeyframes : fromSnapshot}
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            initial={fromSnapshot as any}
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            animate={inView ? animateKeyframes : (fromSnapshot as any)}
             transition={spanTransition}
             onAnimationComplete={index === elements.length - 1 ? onAnimationComplete : undefined}
           >

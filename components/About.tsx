@@ -1,8 +1,8 @@
 "use client";
 
-import { WordsPullUpMultiStyle, AnimatedLetter } from './animations';
+import { AnimatedLetter } from './animations';
 import { useRef } from 'react';
-import { motion, useScroll, useTransform, useMotionTemplate } from 'framer-motion';
+import { motion, useScroll, useTransform, useMotionTemplate, MotionValue } from 'framer-motion';
 
 // Word component with scroll-linked blur animation
 function AnimatedWord({
@@ -16,7 +16,7 @@ function AnimatedWord({
   className: string;
   index: number;
   totalWords: number;
-  progress: any;
+  progress: MotionValue<number>;
 }) {
   // Each word gets equal portion of scroll range - sequential, no overlap
   // Start animation after 50% delay

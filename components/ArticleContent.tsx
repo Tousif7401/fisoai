@@ -3,6 +3,7 @@
 import { Clock, Calendar, ArrowLeft } from 'lucide-react';
 import { PageLoader } from '@/components/PageLoader';
 import { useState } from 'react';
+import Link from 'next/link';
 import { articles } from '@/lib/articles';
 import type { Article } from '@/lib/articles';
 
@@ -44,14 +45,14 @@ export function ArticleContent({ article }: ArticleContentProps) {
       {/* Back Navigation */}
       <section className="relative pt-32 pb-8 px-4 md:px-6">
         <div className="max-w-4xl mx-auto">
-          <a
+          <Link
             href="/articles"
             onClick={handleBack}
             className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-[#DEDBC8] transition-colors cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to articles
-          </a>
+          </Link>
         </div>
       </section>
 
@@ -85,31 +86,31 @@ export function ArticleContent({ article }: ArticleContentProps) {
         <div className="max-w-3xl mx-auto prose prose-invert">
           <div className="text-[#DEDBC8] leading-relaxed space-y-6">
             <p className="text-xl font-light leading-relaxed opacity-90">
-              You're looking at your screen, scrolling through Twitter, and suddenly it hits you — <strong className="text-[#E1E0CC]">everyone else is building incredible things while you're stuck.</strong>
+              You&apos;re looking at your screen, scrolling through Twitter, and suddenly it hits you — <strong className="text-[#E1E0CC]">everyone else is building incredible things while you&apos;re stuck.</strong>
             </p>
 
             <p>
-              They're shipping features, launching products, getting funded. And you? You're just trying to figure out why your CSS won't center.
+              They&apos;re shipping features, launching products, getting funded. And you? You&apos;re just trying to figure out why your CSS won&apos;t center.
             </p>
 
-            <h2 className="text-2xl md:text-3xl font-medium text-[#E1E0CC] mt-12 mb-4">You're Not Alone</h2>
+            <h2 className="text-2xl md:text-3xl font-medium text-[#E1E0CC] mt-12 mb-4">You&apos;re Not Alone</h2>
 
             <p>
-              Here's the thing nobody talks about: <strong className="text-[#E1E0CC]">everyone feels this way.</strong>
-            </p>
-
-            <p>
-              That senior developer you admire? They've had nights staring at code that wouldn't work. That founder who just raised? They've questioned if they're qualified to be building this at all.
+              Here&apos;s the thing nobody talks about: <strong className="text-[#E1E0CC]">everyone feels this way.</strong>
             </p>
 
             <p>
-              The difference is they don't post about the doubts. They post about the wins.
+              That senior developer you admire? They&apos;ve had nights staring at code that wouldn&apos;t work. That founder who just raised? They&apos;ve questioned if they&apos;re qualified to be building this at all.
+            </p>
+
+            <p>
+              The difference is they don&apos;t post about the doubts. They post about the wins.
             </p>
 
             <h2 className="text-2xl md:text-3xl font-medium text-[#E1E0CC] mt-12 mb-4">What Imposter Syndrome Actually Is</h2>
 
             <p>
-              Imposter syndrome isn't a reflection of your ability. It's a reflection of your <strong className="text-[#E1E0CC]">awareness</strong>.
+              Imposter syndrome isn&apos;t a reflection of your ability. It&apos;s a reflection of your <strong className="text-[#E1E0CC]">awareness</strong>.
             </p>
 
             <p>
@@ -123,7 +124,7 @@ export function ArticleContent({ article }: ArticleContentProps) {
               </li>
               <li className="flex items-start gap-3">
                 <span className="text-[#E1E0CC] mt-1">•</span>
-                <span>You're aware of how much there is to learn (and there's always more)</span>
+                <span>You&apos;re aware of how much there is to learn (and there&apos;s always more)</span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="text-[#E1E0CC] mt-1">•</span>
@@ -132,7 +133,7 @@ export function ArticleContent({ article }: ArticleContentProps) {
             </ul>
 
             <p>
-              These aren't weaknesses. They're the very traits that make you grow.
+              These aren&apos;t weaknesses. They&apos;re the very traits that make you grow.
             </p>
 
             <h2 className="text-2xl md:text-3xl font-medium text-[#E1E0CC] mt-12 mb-4">The Twitter Illusion</h2>
@@ -151,11 +152,11 @@ export function ArticleContent({ article }: ArticleContentProps) {
             </div>
 
             <div className="my-6 p-6 bg-[#101010] rounded-lg border-l-2 border-red-500">
-              <p className="font-medium text-red-400 mb-2">What you don't see:</p>
+              <p className="font-medium text-red-400 mb-2">What you don&apos;t see:</p>
               <ul className="space-y-2 text-sm">
                 <li>❌ The 50 failed attempts before the shipped project</li>
                 <li>❌ The nights spent debugging a single bug</li>
-                <li>❌ The moments of "I have no idea what I'm doing"</li>
+                <li>❌ The moments of &quot;I have no idea what I&apos;m doing&quot;</li>
               </ul>
             </div>
 
@@ -166,17 +167,17 @@ export function ArticleContent({ article }: ArticleContentProps) {
             <h2 className="text-2xl md:text-3xl font-medium text-[#E1E0CC] mt-12 mb-4">Reframing the Thoughts</h2>
 
             <p>
-              When that voice says <em>"they're all better than me,"</em> try replacing it with:
+              When that voice says <em>&quot;they&apos;re all better than me,&quot;</em> try replacing it with:
             </p>
 
             <ul className="space-y-4 my-6">
-              <li className="p-4 bg-[#101010] rounded-lg">"They're further along in their journey, not better as a person"</li>
-              <li className="p-4 bg-[#101010] rounded-lg">"Everyone's path is different — comparison is meaningless"</li>
-              <li className="p-4 bg-[#101010] rounded-lg">"I'm learning, and that's what matters"</li>
+              <li className="p-4 bg-[#101010] rounded-lg">&quot;They&apos;re further along in their journey, not better as a person&quot;</li>
+              <li className="p-4 bg-[#101010] rounded-lg">&quot;Everyone&apos;s path is different — comparison is meaningless&quot;</li>
+              <li className="p-4 bg-[#101010] rounded-lg">&quot;I&apos;m learning, and that&apos;s what matters&quot;</li>
             </ul>
 
             <p>
-              Growth isn't about being the best. It's about being better than you were yesterday.
+              Growth isn&apos;t about being the best. It&apos;s about being better than you were yesterday.
             </p>
 
             <h2 className="text-2xl md:text-3xl font-medium text-[#E1E0CC] mt-12 mb-4">Practical Steps</h2>
@@ -185,22 +186,22 @@ export function ArticleContent({ article }: ArticleContentProps) {
               <li className="flex gap-4">
                 <span className="flex-shrink-0 w-8 h-8 rounded-full bg-[#1a1a1a] flex items-center justify-center text-[#E1E0CC] font-medium">1</span>
                 <div>
-                  <strong className="text-[#E1E0CC]">Keep a "done" list</strong>
-                  <p className="text-gray-400 mt-1">Write down everything you've learned, built, or fixed. Imposter syndrome thrives on forgetting your wins.</p>
+                  <strong className="text-[#E1E0CC]">Keep a &quot;done&quot; list</strong>
+                  <p className="text-gray-400 mt-1">Write down everything you&apos;ve learned, built, or fixed. Imposter syndrome thrives on forgetting your wins.</p>
                 </div>
               </li>
               <li className="flex gap-4">
                 <span className="flex-shrink-0 w-8 h-8 rounded-full bg-[#1a1a1a] flex items-center justify-center text-[#E1E0CC] font-medium">2</span>
                 <div>
                   <strong className="text-[#E1E0CC]">Share your struggles</strong>
-                  <p className="text-gray-400 mt-1">When you talk about what you're learning (not just what you've mastered), you'll find you're not alone.</p>
+                  <p className="text-gray-400 mt-1">When you talk about what you&apos;re learning (not just what you&apos;ve mastered), you&apos;ll find you&apos;re not alone.</p>
                 </div>
               </li>
               <li className="flex gap-4">
                 <span className="flex-shrink-0 w-8 h-8 rounded-full bg-[#1a1a1a] flex items-center justify-center text-[#E1E0CC] font-medium">3</span>
                 <div>
                   <strong className="text-[#E1E0CC]">Celebrate small progress</strong>
-                  <p className="text-gray-400 mt-1">Did you fix a bug today? Learn a new concept? That's worth acknowledging.</p>
+                  <p className="text-gray-400 mt-1">Did you fix a bug today? Learn a new concept? That&apos;s worth acknowledging.</p>
                 </div>
               </li>
               <li className="flex gap-4">
@@ -215,11 +216,11 @@ export function ArticleContent({ article }: ArticleContentProps) {
             <h2 className="text-2xl md:text-3xl font-medium text-[#E1E0CC] mt-12 mb-4">You Belong Here</h2>
 
             <p>
-              You're in tech because you're curious, you're persistent, and you want to build things. That's enough.
+              You&apos;re in tech because you&apos;re curious, you&apos;re persistent, and you want to build things. That&apos;s enough.
             </p>
 
             <p>
-              The feeling of not belonging doesn't mean you don't belong. It means you're pushing yourself, and that's exactly where growth happens.
+              The feeling of not belonging doesn&apos;t mean you don&apos;t belong. It means you&apos;re pushing yourself, and that&apos;s exactly where growth happens.
             </p>
 
             <div className="my-12 p-8 bg-gradient-to-br from-[#1a1a1a] to-[#101010] rounded-xl border border-white/10">
@@ -227,12 +228,12 @@ export function ArticleContent({ article }: ArticleContentProps) {
                 Remember:
               </p>
               <p className="text-lg text-[#DEDBC8]">
-                You're not an imposter. You're a developer, on a journey, just like everyone else.
+                You&apos;re not an imposter. You&apos;re a developer, on a journey, just like everyone else.
               </p>
             </div>
 
             <p className="text-base text-gray-400 italic">
-              If you're struggling and need to talk, Calmify is here to listen. Sometimes just voicing these thoughts helps.
+              If you&apos;re struggling and need to talk, Calmify is here to listen. Sometimes just voicing these thoughts helps.
             </p>
           </div>
         </div>
