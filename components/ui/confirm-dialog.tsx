@@ -38,16 +38,16 @@ export function ConfirmDialog({
           />
 
           {/* Dialog */}
-          <div className="fixed inset-0 flex items-center justify-center z-[99999] pointer-events-none">
+          <div className="fixed inset-0 flex items-end sm:items-center justify-center z-[99999] pointer-events-none">
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
               transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-              className="pointer-events-auto w-full max-w-md mx-4"
+              className="pointer-events-auto w-full max-w-md mx-4 sm:mx-0"
             >
               <div
-                className="rounded-2xl border shadow-2xl overflow-hidden"
+                className="rounded-t-2xl sm:rounded-2xl border shadow-2xl overflow-hidden"
                 style={{
                   background: 'rgba(16, 16, 16, 0.98)',
                   borderColor: 'rgba(239, 68, 68, 0.3)',
@@ -72,7 +72,7 @@ export function ConfirmDialog({
                 </div>
 
                 {/* Footer */}
-                <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-white/10">
+                <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-white/10 pb-safe">
                   <button
                     onClick={onCancel}
                     className="px-4 py-2 rounded-lg text-sm font-medium transition-all hover:bg-white/5"

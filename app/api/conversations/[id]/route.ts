@@ -5,9 +5,10 @@ import { NextRequest, NextResponse } from 'next/server';
 // GET - Fetch conversation with messages
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const cookieStore = await cookies();
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -31,7 +32,7 @@ export async function GET(
     const { data: conversation, error: convError } = await supabase
       .from('conversations')
       .select('*')
-      .eq('id', params.id)
+      .eq('id', id)
       .eq('user_id', user.id)
       .single();
 
@@ -43,7 +44,7 @@ export async function GET(
     const { data: messages, error: msgError } = await supabase
       .from('messages')
       .select('*')
-      .eq('conversation_id', params.id)
+      .eq('conversation_id', id)
       .order('created_at', { ascending: true });
 
     if (msgError) {
@@ -63,9 +64,10 @@ export async function GET(
 // PATCH - Update conversation (rename, pin/unpin)
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const cookieStore = await cookies();
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -89,7 +91,7 @@ export async function PATCH(
     const { data: existing, error: checkError } = await supabase
       .from('conversations')
       .select('user_id')
-      .eq('id', params.id)
+      .eq('id', id)
       .single();
 
     if (checkError || !existing || existing.user_id !== user.id) {
@@ -106,7 +108,7 @@ export async function PATCH(
     const { data: conversation, error: updateError } = await supabase
       .from('conversations')
       .update(updateData)
-      .eq('id', params.id)
+      .eq('id', id)
       .select()
       .single();
 
@@ -124,9 +126,10 @@ export async function PATCH(
 // DELETE - Delete conversation
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const cookieStore = await cookies();
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -150,7 +153,7 @@ export async function DELETE(
     const { error: deleteError } = await supabase
       .from('conversations')
       .delete()
-      .eq('id', params.id)
+      .eq('id', id)
       .eq('user_id', user.id);
 
     if (deleteError) {

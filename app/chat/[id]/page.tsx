@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { PromptInputBox } from "@/components/ui/ai-prompt-box";
 import { Sidebar } from '@/components/Sidebar';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bot, User, Plus, Edit2, Check, MoreVertical, Pin, Trash2 } from 'lucide-react';
+import { Bot, User, Plus, Edit2, Check, MoreVertical, Pin, Trash2, Menu, X } from 'lucide-react';
 import { getUser, getProfile } from '@/lib/supabase/auth';
 import { articles } from '@/lib/articles';
 import * as chatService from '@/lib/supabase/chat';
@@ -41,17 +41,17 @@ I'm here to:
 
 How can I support you today?`;
 
-// Keywords that trigger the Calmify description
+// Keywords that trigger the Calmify description (exact match only)
 const CALMIFY_KEYWORDS = [
-  'what r u',
   'what are you',
   'who are you',
   'what is calmify',
-  'what is this',
   'what can you do',
-  'help',
   'about you',
   'your name',
+  'what can you help',
+  'what do you do',
+  'introduce yourself',
 ];
 
 // Article keyword mapping for suggestions
@@ -75,11 +75,7 @@ function getArticleSuggestion(message: string): { slug: string; title: string; e
     }
   }
 
-  // Random article suggestion (30% chance)
-  if (Math.random() > 0.7) {
-    return articles[Math.floor(Math.random() * articles.length)];
-  }
-
+  // No article suggestion - only suggest when there's a keyword match
   return null;
 }
 
@@ -97,6 +93,36 @@ const getTimeBasedGreeting = (): string => {
   }
 };
 
+/**
+ * Simple markdown parser for chat messages
+ * Handles bold (**text**) and italic (*text*)
+ */
+function parseMarkdown(text: string): string {
+  // Escape HTML first to prevent XSS
+  let html = text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+
+  // Replace ALL types of dashes with commas or regular hyphens
+  html = html.replace(/—/g, ',');  // em dash → comma
+  html = html.replace(/–/g, ',');  // en dash → comma
+  html = html.replace(/\s-\s/g, ', ');  // spaced dash → comma
+
+  // Bold: **text** or __text__
+  html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/__(.*?)__/g, '<strong>$1</strong>');
+
+  // Italic: *text* or _text_ (but not inside bold)
+  html = html.replace(/(?<!\*)\*(?!\*)(.*?)\*(?!\*)/g, '<em>$1</em>');
+  html = html.replace(/(?<!_)_(?!_)(.*?)_(?!_)/g, '<em>$1</em>');
+
+  // Line breaks
+  html = html.replace(/\n/g, '<br />');
+
+  return html;
+}
+
 export default function ChatPage() {
   const router = useRouter();
   const params = useParams();
@@ -109,6 +135,7 @@ export default function ChatPage() {
     }
     return true;
   });
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Persist sidebar state to localStorage
   useEffect(() => {
@@ -134,6 +161,10 @@ export default function ChatPage() {
   // Delete dialog state
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [conversationToDelete, setConversationToDelete] = useState<string | null>(null);
+
+  // Message limit modal state
+  const [showLimitModal, setShowLimitModal] = useState(false);
+  const [remainingMessages, setRemainingMessages] = useState<number | null>(null);
 
   // User profile state
   const [profileName, setProfileName] = useState('User');
@@ -198,8 +229,9 @@ export default function ChatPage() {
 
   // Listen for conversation selection from sidebar
   useEffect(() => {
-    const handleConversationSelected = async (event: CustomEvent<{ id: string }>) => {
-      const { id } = event.detail;
+    const handleConversationSelected = async (event: Event) => {
+      const customEvent = event as CustomEvent<{ id: string }>;
+      const { id } = customEvent.detail;
       setIsLoadingConversation(true);
 
       try {
@@ -402,18 +434,15 @@ export default function ChatPage() {
   const handleSendMessage = async (message: string, files?: File[]) => {
     if (!message.trim()) return;
 
-    // Start chat mode on first message
-    if (!hasStartedChat) {
-      setHasStartedChat(true);
-    }
-
     // Create conversation if none exists
     if (!conversationId) {
-      try {
-        const newConv = await chatService.createConversation(
-          (await getUser()).user!.id,
-          message.slice(0, 50) + (message.length > 50 ? '...' : '')
-        );
+      const result = await chatService.createConversation(
+        (await getUser()).user!.id,
+        message.slice(0, 50) + (message.length > 50 ? '...' : '')
+      );
+
+      if (result.success) {
+        const newConv = result.data;
         console.log('New conversation created:', newConv);
         setConversationId(newConv.id);
         setConversationTitle(newConv.title ?? null);
@@ -422,13 +451,19 @@ export default function ChatPage() {
         // Dispatch event to notify sidebar of new conversation
         console.log('Dispatching conversation-created event with:', newConv);
         window.dispatchEvent(new CustomEvent('conversation-created', { detail: { conversation: newConv } }));
-      } catch (error) {
-        console.error('Failed to create conversation:', error);
+
+        // Start chat mode only after successful conversation creation
+        if (!hasStartedChat) {
+          setHasStartedChat(true);
+        }
+      } else {
         showError('Failed to save conversation');
+        // Don't continue adding the message if conversation creation failed
+        return;
       }
     }
 
-    // Add user message
+    // Add user message to UI immediately (optimistic UI)
     const userMessage: Message = {
       id: Date.now().toString(),
       content: message,
@@ -437,12 +472,20 @@ export default function ChatPage() {
     };
     setMessages(prev => [...prev, userMessage]);
 
-    // Save user message to database
+    // Check daily limit and save to DB in background
     if (conversationId) {
-      try {
-        await chatService.addMessage(conversationId, 'user', message);
-      } catch (error) {
-        console.error('Failed to save message:', error);
+      const result = await chatService.addMessage(conversationId, 'user', message);
+      if (!result.success) {
+        // Check if it's a daily limit error
+        if (result.error?.includes('Daily message limit reached') || result.error?.includes('limit')) {
+          console.log('Daily limit reached, showing modal');
+          // Remove the message from UI since it couldn't be saved
+          setMessages(prev => prev.slice(0, -1));
+          setShowLimitModal(true);
+          return; // Don't call AI
+        }
+        // Log unexpected errors only
+        console.error('Failed to save message:', result.error);
       }
     }
 
@@ -461,24 +504,83 @@ export default function ChatPage() {
 
         // Save to database
         if (conversationId) {
-          try {
-            await chatService.addMessage(conversationId, 'assistant', CALMIFY_DESCRIPTION);
-          } catch (error) {
-            console.error('Failed to save message:', error);
+          const result = await chatService.addMessage(conversationId, 'assistant', CALMIFY_DESCRIPTION);
+          if (!result.success) {
+            // Don't log daily limit errors - it's expected behavior
+            if (!result.error?.includes('Daily message limit reached') && !result.error?.includes('limit')) {
+              console.error('Failed to save message:', result.error);
+            }
           }
         }
       }, 1000);
     } else {
-      // For other messages, provide a supportive response with article suggestions
+      // For other messages, call Gemini API for AI response
       setIsTyping(true);
-      setTimeout(async () => {
-        const articleSuggestion = getArticleSuggestion(message);
 
-        let response = `I hear you. ${getSupportiveResponse(message)}`;
+      try {
+        // Get conversation history for context (last 10 messages)
+        // Include current user message since state update is async
+        const recentMessages = [...messages.slice(-10), {
+          role: 'user' as const,
+          content: message,
+        }].map(m => ({
+          role: m.role,
+          content: m.content,
+        }));
+
+        // Call the chat API
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            message,
+            conversationHistory: recentMessages,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to get AI response');
+        }
+
+        // Parse the streaming response
+        const reader = response.body?.getReader();
+        const decoder = new TextDecoder();
+        let aiResponse = '';
+
+        if (reader) {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            const chunk = decoder.decode(value);
+            const lines = chunk.split('\n');
+
+            for (const line of lines) {
+              if (line.startsWith('data: ')) {
+                const data = line.slice(6);
+                if (data === '[DONE]') break;
+
+                try {
+                  const parsed = JSON.parse(data);
+                  if (parsed.chunk) {
+                    aiResponse += parsed.chunk;
+                  }
+                } catch (e) {
+                  // Skip invalid JSON
+                }
+              }
+            }
+          }
+        }
+
+        // Get article suggestion based on the message
+        const articleSuggestion = getArticleSuggestion(message);
 
         const responseMessage: Message = {
           id: (Date.now() + 1).toString(),
-          content: response,
+          content: aiResponse || 'I apologize, but I had trouble processing that. Could you try rephrasing?',
           role: 'assistant',
           timestamp: new Date(),
           articleSuggestion: articleSuggestion ? {
@@ -494,18 +596,41 @@ export default function ChatPage() {
 
         // Save to database
         if (conversationId) {
-          try {
-            await chatService.addMessage(
-              conversationId,
-              'assistant',
-              response,
-              responseMessage.articleSuggestion
-            );
-          } catch (error) {
-            console.error('Failed to save message:', error);
+          const result = await chatService.addMessage(
+            conversationId,
+            'assistant',
+            responseMessage.content,
+            responseMessage.articleSuggestion
+          );
+          if (!result.success) {
+            // Don't log daily limit errors - it's expected behavior
+            if (!result.error?.includes('Daily message limit reached') && !result.error?.includes('limit')) {
+              console.error('Failed to save message:', result.error);
+            }
           }
         }
-      }, 1000);
+      } catch (error) {
+        console.error('Failed to get AI response:', error);
+        const errorMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          content: 'I apologize, but I\'m having trouble connecting right now. Please try again in a moment.',
+          role: 'assistant',
+          timestamp: new Date(),
+        };
+        setMessages(prev => [...prev, errorMessage]);
+        setIsTyping(false);
+
+        // Save error message to database
+        if (conversationId) {
+          const result = await chatService.addMessage(conversationId, 'assistant', errorMessage.content);
+          if (!result.success) {
+            // Don't log daily limit errors - it's expected behavior
+            if (!result.error?.includes('Daily message limit reached') && !result.error?.includes('limit')) {
+              console.error('Failed to save error message:', result.error);
+            }
+          }
+        }
+      }
     }
   };
 
@@ -536,23 +661,65 @@ export default function ChatPage() {
 
   return (
     <div
-      className="flex h-screen font-['Almarai'] bg-[radial-gradient(125%_125%_at_50%_101%,rgba(245,87,2,1)_10.5%,rgba(245,120,2,1)_16%,rgba(245,140,2,1)_17.5%,rgba(245,170,100,1)_25%,rgba(238,174,202,1)_40%,rgba(202,179,214,1)_65%,rgba(148,201,233,1)_100%)]"
-    >
-      {/* Sidebar */}
-      <Sidebar
-        isCollapsed={isSidebarCollapsed}
-        onToggle={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-        currentConversationId={conversationId}
-      />
+        className="flex h-screen font-['Almarai'] bg-[radial-gradient(125%_125%_at_50%_101%,rgba(245,87,2,1)_10.5%,rgba(245,120,2,1)_16%,rgba(245,140,2,1)_17.5%,rgba(245,170,100,1)_25%,rgba(238,174,202,1)_40%,rgba(202,179,214,1)_65%,rgba(148,201,233,1)_100%)]"
+      >
+      {/* Mobile Menu Button */}
+      <button
+        onClick={() => setIsMobileMenuOpen(true)}
+        className="md:hidden fixed top-4 left-4 z-30 p-2 bg-white/20 backdrop-blur-xl rounded-lg hover:bg-white/30 transition-colors shadow-lg border border-white/30"
+        style={{ top: 'max(1rem, env(safe-area-inset-top) + 0.25rem)' }}
+      >
+        <Menu className="w-5 h-5 text-black" />
+      </button>
+
+      {/* Mobile Menu Overlay */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40 md:hidden"
+              onClick={() => setIsMobileMenuOpen(false)}
+            />
+            <motion.div
+              initial={{ x: -280 }}
+              animate={{ x: 0 }}
+              exit={{ x: -280 }}
+              transition={{ duration: 0.3, ease: 'easeInOut' }}
+              className="md:hidden fixed inset-y-0 left-0 z-50"
+            >
+              <Sidebar
+                isCollapsed={false}
+                onToggle={() => setIsMobileMenuOpen(false)}
+                currentConversationId={conversationId}
+                isMobile={true}
+                onMobileClose={() => setIsMobileMenuOpen(false)}
+              />
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Sidebar - Desktop */}
+      <div className="hidden md:block">
+        <Sidebar
+          isCollapsed={isSidebarCollapsed}
+          onToggle={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+          currentConversationId={conversationId}
+        />
+      </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col h-full overflow-hidden relative">
+      <div className="flex-1 flex flex-col h-full overflow-hidden relative pl-0 md:pl-0 pb-safe z-10">
         {/* Conversation Header */}
         {conversationId && (
           <>
             {/* Loading indicator above header */}
             {isLoadingConversation && (
-              <div className="px-4 py-2">
+              <div className="px-4 py-2 pl-16 md:pl-4">
                 <div className="w-full h-0.5 bg-black/20 rounded-full overflow-hidden">
                   <motion.div
                     initial={{ width: '0%' }}
@@ -564,7 +731,7 @@ export default function ChatPage() {
               </div>
             )}
 
-            <div className="flex items-center justify-between px-4 py-3">
+            <div className="flex items-center justify-between px-4 py-3 pl-16 md:pl-4">
             <div className="flex items-center gap-2">
               {isEditingTitle ? (
                 <div className="flex items-center gap-2">
@@ -638,7 +805,12 @@ export default function ChatPage() {
                         {isPinned ? 'Unpin' : 'Pin'}
                       </button>
                       <button
-                        onClick={handleDeleteConversation}
+                        onClick={() => {
+                          if (conversationId) {
+                            setConversationToDelete(conversationId);
+                            setDeleteDialogOpen(true);
+                          }
+                        }}
                         className="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-white/5 flex items-center gap-3"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -658,6 +830,7 @@ export default function ChatPage() {
           animate={{ flex: hasStartedChat ? 0 : 1 }}
           transition={{ duration: 1.0, ease: [0.42, 0, 0.58, 1] }}
           style={{ flex: hasStartedChat ? 0 : 1, minHeight: 0 }}
+          className="pointer-events-none"
         />
 
         {/* Messages Area - Always exists but hidden initially */}
@@ -691,7 +864,7 @@ export default function ChatPage() {
                   className="max-w-[85%] sm:max-w-[80%] rounded-2xl px-3 py-2 sm:px-4 sm:py-3 bg-[#1F2023] text-gray-300 border border-[#444444] text-sm sm:text-base"
                 >
                   <div dangerouslySetInnerHTML={{
-                    __html: message.content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br />')
+                    __html: parseMarkdown(message.content)
                   }}
                   />
                   {/* Article Suggestion Card - Inside the message bubble */}
@@ -772,7 +945,7 @@ export default function ChatPage() {
         </motion.div>
 
         {/* Input Area */}
-        <div className="flex flex-col items-center px-4">
+        <div className="flex flex-col items-center px-4 pb-4 sm:pb-6 relative z-20 pointer-events-auto">
           {/* Greeting Text - Only visible before chat starts */}
           <AnimatePresence>
             {!hasStartedChat && (
@@ -809,6 +982,7 @@ export default function ChatPage() {
           animate={{ flex: hasStartedChat ? 0 : 1 }}
           transition={{ duration: 1.0, ease: [0.42, 0, 0.58, 1] }}
           style={{ flex: hasStartedChat ? 0 : 1, minHeight: 0 }}
+          className="pointer-events-none"
         />
       </div>
 
@@ -822,6 +996,43 @@ export default function ChatPage() {
         onConfirm={confirmDeleteConversation}
         onCancel={cancelDeleteConversation}
       />
+
+      {/* Message Limit Modal */}
+      {showLimitModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="bg-[#1F2023] border border-[#333333] rounded-2xl p-6 max-w-md w-full shadow-2xl"
+          >
+            <div className="flex flex-col items-center text-center">
+              {/* Calmify Logo */}
+              <div className="w-[75px] h-[75px] rounded-full bg-[#E1E0CC]/10 flex items-center justify-center mb-4">
+                <img src="/logo.svg" alt="Calmify Logo" className="w-16 h-16 brightness-0 invert" />
+              </div>
+
+              {/* Heading */}
+              <h3 className="text-xl font-semibold text-[#E1E0CC] mb-3">
+                Daily Message Limit Reached
+              </h3>
+
+              {/* Message */}
+              <p className="text-gray-300 mb-6 leading-relaxed">
+                You've reached your daily message limit of 30 messages. This helps me keep Calmify free for everyone. Come back tomorrow to continue chatting!
+              </p>
+
+              {/* Close Button */}
+              <button
+                onClick={() => setShowLimitModal(false)}
+                className="px-6 py-2.5 bg-[#E1E0CC] hover:bg-[#DEDBC8] text-black rounded-full font-medium transition-colors w-full"
+              >
+                Got it, thanks!
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }

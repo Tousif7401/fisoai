@@ -18,6 +18,7 @@ interface ConversationListProps {
   currentConversationId?: string | null;
   onConversationSelect?: (id: string) => void;
   isCollapsed?: boolean;
+  onMobileClose?: () => void;
 }
 
 interface ConversationItemProps {
@@ -291,7 +292,7 @@ const ConversationItem = memo(ConversationItemNoMemo, (prevProps, nextProps) => 
 
 ConversationItem.displayName = 'ConversationItem';
 
-function ConversationList({ currentConversationId, onConversationSelect, isCollapsed = false }: ConversationListProps) {
+function ConversationList({ currentConversationId, onConversationSelect, isCollapsed = false, onMobileClose }: ConversationListProps) {
   const router = useRouter();
   const { showError, showSuccess } = useToast();
   const [conversations, setConversations] = useState<{
@@ -488,7 +489,11 @@ function ConversationList({ currentConversationId, onConversationSelect, isColla
     if (window.location.pathname !== `/chat/${id}`) {
       window.history.pushState({}, '', `/chat/${id}`);
     }
-  }, []);
+    // Close mobile menu if provided
+    if (onMobileClose) {
+      onMobileClose();
+    }
+  }, [onMobileClose]);
 
   const handlePinConversation = useCallback(async (id: string, currentPinned: boolean) => {
     try {

@@ -421,7 +421,7 @@ const PromptInputAction: React.FC<PromptInputActionProps> = ({
   tooltip,
   children,
   className,
-  side = "top",
+  side = "bottom",
   ...props
 }) => {
   const { disabled } = usePromptInput();
@@ -651,7 +651,7 @@ export const PromptInputBox = React.forwardRef((props: PromptInputBoxProps, ref:
               isRecording ? "opacity-0 invisible h-0" : "opacity-100 visible"
             )}
           >
-            <PromptInputAction tooltip="Upload image">
+            <PromptInputAction tooltip="Upload image (Coming soon)">
               <button
                 onClick={() => uploadInputRef.current?.click()}
                 className="flex h-8 w-8 text-gray-400 cursor-pointer items-center justify-center rounded-full transition-colors hover:bg-white/10 hover:text-gray-300"
@@ -672,111 +672,117 @@ export const PromptInputBox = React.forwardRef((props: PromptInputBoxProps, ref:
             </PromptInputAction>
 
             <div className="flex items-center">
-              <button
-                type="button"
-                onClick={() => handleToggleChange("search")}
-                className={cn(
-                  "rounded-full transition-all flex items-center gap-1 px-2 py-1 border h-8",
-                  showSearch
-                    ? "bg-[#1EAEDB]/15 border-[#1EAEDB] text-[#1EAEDB]"
-                    : "bg-transparent border-transparent text-gray-400 hover:text-gray-300"
-                )}
-              >
-                <div className="w-5 h-5 flex items-center justify-center flex-shrink-0">
-                  <motion.div
-                    animate={{ rotate: showSearch ? 360 : 0, scale: showSearch ? 1.1 : 1 }}
-                    whileHover={{ rotate: showSearch ? 360 : 15, scale: 1.1, transition: { type: "spring", stiffness: 300, damping: 10 } }}
-                    transition={{ type: "spring", stiffness: 260, damping: 25 }}
-                  >
-                    <Globe className={cn("w-4 h-4", showSearch ? "text-[#1EAEDB]" : "text-inherit")} />
-                  </motion.div>
-                </div>
-                <AnimatePresence>
-                  {showSearch && (
-                    <motion.span
-                      initial={{ width: 0, opacity: 0 }}
-                      animate={{ width: "auto", opacity: 1 }}
-                      exit={{ width: 0, opacity: 0 }}
-                      transition={{ duration: 0.2 }}
-                      className="text-xs overflow-hidden whitespace-nowrap text-[#1EAEDB] flex-shrink-0"
-                    >
-                      Search
-                    </motion.span>
+              <PromptInputAction tooltip="Search web (Coming soon)">
+                <button
+                  type="button"
+                  onClick={() => handleToggleChange("search")}
+                  className={cn(
+                    "rounded-full transition-all flex items-center gap-1 px-2 py-1 border h-8",
+                    showSearch
+                      ? "bg-[#1EAEDB]/15 border-[#1EAEDB] text-[#1EAEDB]"
+                      : "bg-transparent border-transparent text-gray-400 hover:text-gray-300"
                   )}
-                </AnimatePresence>
-              </button>
+                >
+                  <div className="w-5 h-5 flex items-center justify-center flex-shrink-0">
+                    <motion.div
+                      animate={{ rotate: showSearch ? 360 : 0, scale: showSearch ? 1.1 : 1 }}
+                      whileHover={{ rotate: showSearch ? 360 : 15, scale: 1.1, transition: { type: "spring", stiffness: 300, damping: 10 } }}
+                      transition={{ type: "spring", stiffness: 260, damping: 25 }}
+                    >
+                      <Globe className={cn("w-4 h-4", showSearch ? "text-[#1EAEDB]" : "text-inherit")} />
+                    </motion.div>
+                  </div>
+                  <AnimatePresence>
+                    {showSearch && (
+                      <motion.span
+                        initial={{ width: 0, opacity: 0 }}
+                        animate={{ width: "auto", opacity: 1 }}
+                        exit={{ width: 0, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="text-xs overflow-hidden whitespace-nowrap text-[#1EAEDB] flex-shrink-0"
+                      >
+                        Search
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                </button>
+              </PromptInputAction>
 
               <CustomDivider />
 
-              <button
-                type="button"
-                onClick={() => handleToggleChange("think")}
-                className={cn(
-                  "rounded-full transition-all flex items-center gap-1 px-2 py-1 border h-8",
-                  showThink
-                    ? "bg-[#8B5CF6]/15 border-[#8B5CF6] text-[#8B5CF6]"
-                    : "bg-transparent border-transparent text-gray-400 hover:text-gray-300"
-                )}
-              >
-                <div className="w-5 h-5 flex items-center justify-center flex-shrink-0">
-                  <motion.div
-                    animate={{ rotate: showThink ? 360 : 0, scale: showThink ? 1.1 : 1 }}
-                    whileHover={{ rotate: showThink ? 360 : 15, scale: 1.1, transition: { type: "spring", stiffness: 300, damping: 10 } }}
-                    transition={{ type: "spring", stiffness: 260, damping: 25 }}
-                  >
-                    <BrainCog className={cn("w-4 h-4", showThink ? "text-[#8B5CF6]" : "text-inherit")} />
-                  </motion.div>
-                </div>
-                <AnimatePresence>
-                  {showThink && (
-                    <motion.span
-                      initial={{ width: 0, opacity: 0 }}
-                      animate={{ width: "auto", opacity: 1 }}
-                      exit={{ width: 0, opacity: 0 }}
-                      transition={{ duration: 0.2 }}
-                      className="text-xs overflow-hidden whitespace-nowrap text-[#8B5CF6] flex-shrink-0"
-                    >
-                      Think
-                    </motion.span>
+              <PromptInputAction tooltip="Deep thinking (Coming soon)">
+                <button
+                  type="button"
+                  onClick={() => handleToggleChange("think")}
+                  className={cn(
+                    "rounded-full transition-all flex items-center gap-1 px-2 py-1 border h-8",
+                    showThink
+                      ? "bg-[#8B5CF6]/15 border-[#8B5CF6] text-[#8B5CF6]"
+                      : "bg-transparent border-transparent text-gray-400 hover:text-gray-300"
                   )}
-                </AnimatePresence>
-              </button>
+                >
+                  <div className="w-5 h-5 flex items-center justify-center flex-shrink-0">
+                    <motion.div
+                      animate={{ rotate: showThink ? 360 : 0, scale: showThink ? 1.1 : 1 }}
+                      whileHover={{ rotate: showThink ? 360 : 15, scale: 1.1, transition: { type: "spring", stiffness: 300, damping: 10 } }}
+                      transition={{ type: "spring", stiffness: 260, damping: 25 }}
+                    >
+                      <BrainCog className={cn("w-4 h-4", showThink ? "text-[#8B5CF6]" : "text-inherit")} />
+                    </motion.div>
+                  </div>
+                  <AnimatePresence>
+                    {showThink && (
+                      <motion.span
+                        initial={{ width: 0, opacity: 0 }}
+                        animate={{ width: "auto", opacity: 1 }}
+                        exit={{ width: 0, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="text-xs overflow-hidden whitespace-nowrap text-[#8B5CF6] flex-shrink-0"
+                      >
+                        Think
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                </button>
+              </PromptInputAction>
 
               <CustomDivider />
 
-              <button
-                type="button"
-                onClick={handleCanvasToggle}
-                className={cn(
-                  "rounded-full transition-all flex items-center gap-1 px-2 py-1 border h-8",
-                  showCanvas
-                    ? "bg-[#F97316]/15 border-[#F97316] text-[#F97316]"
-                    : "bg-transparent border-transparent text-gray-400 hover:text-gray-300"
-                )}
-              >
-                <div className="w-5 h-5 flex items-center justify-center flex-shrink-0">
-                  <motion.div
-                    animate={{ rotate: showCanvas ? 360 : 0, scale: showCanvas ? 1.1 : 1 }}
-                    whileHover={{ rotate: showCanvas ? 360 : 15, scale: 1.1, transition: { type: "spring", stiffness: 300, damping: 10 } }}
-                    transition={{ type: "spring", stiffness: 260, damping: 25 }}
-                  >
-                    <FolderCog className={cn("w-4 h-4", showCanvas ? "text-[#F97316]" : "text-inherit")} />
-                  </motion.div>
-                </div>
-                <AnimatePresence>
-                  {showCanvas && (
-                    <motion.span
-                      initial={{ width: 0, opacity: 0 }}
-                      animate={{ width: "auto", opacity: 1 }}
-                      exit={{ width: 0, opacity: 0 }}
-                      transition={{ duration: 0.2 }}
-                      className="text-xs overflow-hidden whitespace-nowrap text-[#F97316] flex-shrink-0"
-                    >
-                      Canvas
-                    </motion.span>
+              <PromptInputAction tooltip="Canvas mode (Coming soon)">
+                <button
+                  type="button"
+                  onClick={handleCanvasToggle}
+                  className={cn(
+                    "rounded-full transition-all flex items-center gap-1 px-2 py-1 border h-8",
+                    showCanvas
+                      ? "bg-[#F97316]/15 border-[#F97316] text-[#F97316]"
+                      : "bg-transparent border-transparent text-gray-400 hover:text-gray-300"
                   )}
-                </AnimatePresence>
-              </button>
+                >
+                  <div className="w-5 h-5 flex items-center justify-center flex-shrink-0">
+                    <motion.div
+                      animate={{ rotate: showCanvas ? 360 : 0, scale: showCanvas ? 1.1 : 1 }}
+                      whileHover={{ rotate: showCanvas ? 360 : 15, scale: 1.1, transition: { type: "spring", stiffness: 300, damping: 10 } }}
+                      transition={{ type: "spring", stiffness: 260, damping: 25 }}
+                    >
+                      <FolderCog className={cn("w-4 h-4", showCanvas ? "text-[#F97316]" : "text-inherit")} />
+                    </motion.div>
+                  </div>
+                  <AnimatePresence>
+                    {showCanvas && (
+                      <motion.span
+                        initial={{ width: 0, opacity: 0 }}
+                        animate={{ width: "auto", opacity: 1 }}
+                        exit={{ width: 0, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="text-xs overflow-hidden whitespace-nowrap text-[#F97316] flex-shrink-0"
+                      >
+                        Canvas
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                </button>
+              </PromptInputAction>
             </div>
           </div>
 
@@ -788,7 +794,7 @@ export const PromptInputBox = React.forwardRef((props: PromptInputBoxProps, ref:
                 ? "Stop recording"
                 : hasContent
                 ? "Send message"
-                : "Voice message"
+                : "Voice message (Coming soon)"
             }
           >
             <Button

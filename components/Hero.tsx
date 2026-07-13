@@ -72,7 +72,7 @@ export function Hero() {
         <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/60" />
 
         {/* Navbar */}
-        <nav className="absolute top-0 left-1/2 -translate-x-1/2 bg-black rounded-b-2xl md:rounded-b-3xl px-3 sm:px-4 py-2 md:px-8">
+        <nav className="absolute top-0 left-1/2 -translate-x-1/2 backdrop-blur-md rounded-b-2xl md:rounded-b-3xl px-3 sm:px-4 py-2 md:px-8">
           <ul className="flex items-center gap-2 sm:gap-3 md:gap-12 lg:gap-14">
             {navItems.map((item) => (
               <li key={item}>

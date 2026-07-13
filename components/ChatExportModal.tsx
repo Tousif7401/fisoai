@@ -199,13 +199,13 @@ export function ChatExportModal({
         onClick={onClose}
       />
       {/* Modal */}
-      <div className="fixed inset-0 z-[101] flex items-center justify-center pointer-events-none p-4">
+      <div className="fixed inset-0 z-[101] flex items-end sm:items-center justify-center pointer-events-none">
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           transition={{ duration: 0.2 }}
-          className="pointer-events-auto bg-[#1F2023] border border-[#444444] rounded-2xl p-6 max-w-md w-full shadow-2xl font-['Almarai'] min-h-[300px] flex flex-col"
+          className="pointer-events-auto bg-[#1F2023] border border-[#444444] rounded-t-2xl sm:rounded-2xl p-4 sm:p-6 max-w-md w-full shadow-2xl font-['Almarai'] min-h-[300px] flex flex-col mx-4 sm:mx-0 max-h-[90vh]"
         >
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
@@ -266,7 +266,7 @@ export function ChatExportModal({
               </div>
 
               {/* Actions */}
-              <div className="flex gap-3">
+              <div className="flex gap-3 pb-safe">
                 <button
                   onClick={onClose}
                   className="flex-1 px-4 py-2 rounded-full border border-[#444444] text-gray-300 hover:bg-white/5 transition-colors font-['Almarai']"

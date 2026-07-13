@@ -15,9 +15,9 @@ import {
   User,
   LogOut,
   HelpCircle,
-  Settings,
   Camera,
-  UserX
+  UserX,
+  X
 } from 'lucide-react';
 import { AvatarPicker, avatarList } from '@/components/ui/avatar-picker';
 import { HelpModal } from '@/components/HelpModal';
@@ -59,6 +59,8 @@ interface SidebarProps {
   isCollapsed?: boolean;
   onToggle: () => void;
   currentConversationId?: string | null;
+  isMobile?: boolean;
+  onMobileClose?: () => void;
 }
 
 interface MenuItem {
@@ -69,7 +71,7 @@ interface MenuItem {
   onClick?: () => void;
 }
 
-export function Sidebar({ isCollapsed = false, onToggle, currentConversationId }: SidebarProps) {
+export function Sidebar({ isCollapsed = false, onToggle, currentConversationId, isMobile = false, onMobileClose }: SidebarProps) {
   const router = useRouter();
   const pathname = usePathname();
   const [isLogoHovered, setIsLogoHovered] = useState(false);
@@ -94,6 +96,7 @@ export function Sidebar({ isCollapsed = false, onToggle, currentConversationId }
   const [hasNewUpload, setHasNewUpload] = useState(false);
   const [showDeleteAccountConfirm, setShowDeleteAccountConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [avatarLoadError, setAvatarLoadError] = useState(false);
 
   // Fetch user profile on mount
   useEffect(() => {
@@ -102,6 +105,7 @@ export function Sidebar({ isCollapsed = false, onToggle, currentConversationId }
       if (profile) {
         setProfileName(profile.full_name || 'User');
         setProfileEmail(profile.email || '');
+        setAvatarLoadError(false);
         if (profile.avatar_url) {
           setAvatarUrl(profile.avatar_url);
         }
@@ -117,6 +121,11 @@ export function Sidebar({ isCollapsed = false, onToggle, currentConversationId }
     };
     fetchProfile();
   }, []);
+
+  // Handler for avatar image load errors
+  const handleAvatarError = () => {
+    setAvatarLoadError(true);
+  };
 
   // Temporary state for editing (only committed on Save)
   const [tempProfileName, setTempProfileName] = useState(profileName);
@@ -158,6 +167,7 @@ export function Sidebar({ isCollapsed = false, onToggle, currentConversationId }
       setHasNewUpload(false);
       setUploadedImage(null);
       setFileToUpload(null);
+      setAvatarLoadError(false);
       reloadProfile();
     }
   }, [showProfileModal]);
@@ -172,7 +182,7 @@ export function Sidebar({ isCollapsed = false, onToggle, currentConversationId }
       setTooltip({
         text,
         x: e.clientX + 15,
-        y: e.clientY + 15,
+      y: e.clientY + 15,
       });
       setShowTooltip(true);
     }
@@ -293,18 +303,20 @@ export function Sidebar({ isCollapsed = false, onToggle, currentConversationId }
     setUploadedImage(null);
     setFileToUpload(null);
     setHasNewUpload(false);
+    setAvatarLoadError(false);
     setShowProfileModal(false);
   };
 
   return (
     <motion.aside
       initial={false}
-      animate={{ width: isCollapsed ? 61 : 240 }}
+      animate={{ width: isMobile ? '280px' : (isCollapsed ? 61 : 240) }}
       transition={{ duration: 0.3, ease: 'easeInOut' }}
       className={cn(
         "flex flex-col h-screen overflow-hidden relative font-['Almarai'] scrollbar-transparent",
         !isCollapsed && "backdrop-blur-xl bg-white/10",
-        isCollapsed && "bg-transparent"
+        isCollapsed && "bg-transparent",
+        isMobile && "backdrop-blur-xl bg-white/10 shadow-2xl pb-safe"
       )}
     >
       <style>{`
@@ -330,9 +342,32 @@ export function Sidebar({ isCollapsed = false, onToggle, currentConversationId }
         }
       `}</style>
       <TooltipProvider>
+      {/* Mobile Close Button */}
+      {isMobile && (
+        <div className="flex items-center justify-between p-4 border-b border-white/10">
+          <div className="flex items-center gap-2">
+            <img
+              src="/logo.svg"
+              alt="Calmify Logo"
+              className="w-8 h-8"
+            />
+            <p className="text-lg text-black font-['Almarai']">
+              Calmify AI
+            </p>
+          </div>
+          <button
+            onClick={onMobileClose}
+            className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+          >
+            <X className="w-5 h-5 text-black" />
+          </button>
+        </div>
+      )}
+
       {/* Menu Items */}
       <div className="flex-1 overflow-y-auto overflow-x-hidden relative z-10 p-2 space-y-1">
-        {/* Logo + Text - Shows expand/collapse icon on hover */}
+        {/* Logo + Text - Shows expand/collapse icon on hover (hidden on mobile) */}
+        {!isMobile && (
         <div
           onMouseEnter={() => setIsLogoHovered(true)}
           onMouseLeave={() => {
@@ -402,6 +437,7 @@ export function Sidebar({ isCollapsed = false, onToggle, currentConversationId }
             </motion.div>
           )}
         </div>
+        )}
             {menuItems.map((item) => {
               const Icon = item.icon;
               // Derive active state from pathname
@@ -453,7 +489,11 @@ export function Sidebar({ isCollapsed = false, onToggle, currentConversationId }
             })}
 
             {/* Conversation List */}
-            <ConversationList currentConversationId={currentConversationId} isCollapsed={isCollapsed} />
+            <ConversationList
+              currentConversationId={currentConversationId}
+              isCollapsed={isCollapsed}
+              onMobileClose={onMobileClose}
+            />
           </div>
 
       {/* Footer - User Profile */}
@@ -479,16 +519,18 @@ export function Sidebar({ isCollapsed = false, onToggle, currentConversationId }
                       src={uploadedImage}
                       alt={profileName}
                       className="w-full h-full object-cover"
+                      onError={handleAvatarError}
                     />
                   ) : savedAvatarSvg ? (
                     <div className="w-full h-full flex items-center justify-center">
                       {savedAvatarSvg}
                     </div>
-                  ) : avatarUrl ? (
+                  ) : (avatarUrl && !avatarLoadError) ? (
                     <img
                       src={avatarUrl}
                       alt={profileName}
                       className="w-full h-full object-cover"
+                      onError={handleAvatarError}
                     />
                   ) : (
                     <span className="text-white font-semibold text-sm">{profileName.charAt(0).toUpperCase()}</span>
@@ -560,17 +602,6 @@ export function Sidebar({ isCollapsed = false, onToggle, currentConversationId }
               <span className="text-sm">Help</span>
             </button>
 
-            {/* Settings Option */}
-            <button
-              onClick={() => {
-                setShowProfileDropdown(false);
-              }}
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-300 hover:bg-white/10 transition-colors text-left"
-            >
-              <Settings className="w-4 h-4" />
-              <span className="text-sm">Settings</span>
-            </button>
-
             <div className="h-px bg-white/10 my-1" />
 
             {/* Logout Option */}
@@ -604,28 +635,28 @@ export function Sidebar({ isCollapsed = false, onToggle, currentConversationId }
           />
 
           {/* Modal */}
-          <div className="fixed inset-0 z-[101] flex items-center justify-center pointer-events-none">
+          <div className="fixed inset-0 z-[101] flex items-end sm:items-center justify-center pointer-events-none">
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               transition={{ duration: 0.2 }}
-              className="pointer-events-auto"
+              className="pointer-events-auto w-full max-w-[450px] mx-0 sm:mx-4"
             >
-              <div className="bg-[#1F2023] border border-[#444444] rounded-2xl overflow-hidden shadow-2xl w-[450px] font-['Almarai'] max-h-[90vh] overflow-y-auto">
+              <div className="bg-[#1F2023] border border-[#444444] rounded-t-2xl sm:rounded-2xl overflow-hidden shadow-2xl w-full font-['Almarai'] max-h-[90vh] overflow-y-auto">
                 {/* Header */}
-                <div className="px-6 py-4 border-b border-[#444444] flex justify-between items-center">
+                <div className="px-4 py-4 border-b border-[#444444] flex justify-between items-center">
                   <h2 className="text-lg font-medium text-white">Profile</h2>
                   <button
                     onClick={handleCancelProfile}
-                    className="text-gray-400 hover:text-white transition-colors"
+                    className="text-gray-400 hover:text-white transition-colors p-2"
                   >
                     ✕
                   </button>
                 </div>
 
                 {/* Profile Content */}
-                <div className="p-6 space-y-6">
+                <div className="p-4 space-y-6 pb-safe">
                   {/* AvatarPicker Section */}
                   <div id="avatar-picker-section" className="space-y-3">
                     <AvatarPicker
@@ -639,8 +670,10 @@ export function Sidebar({ isCollapsed = false, onToggle, currentConversationId }
                         setUploadedImage(null);
                         setAvatarUrl(null);
                         setHasNewUpload(false); // Reset upload flag when selecting from picker
+                        setAvatarLoadError(false);
                       }}
                       onUploadClick={() => fileInputRef.current?.click()}
+                      onAvatarError={handleAvatarError}
                     />
                   </div>
 
@@ -691,7 +724,7 @@ export function Sidebar({ isCollapsed = false, onToggle, currentConversationId }
                 </div>
 
                 {/* Footer - Save/Cancel Buttons */}
-                <div className="p-4 border-t border-[#444444] flex gap-3">
+                <div className="p-4 border-t border-[#444444] flex gap-3 pb-safe">
                   <button
                     onClick={handleCancelProfile}
                     className="flex-1 rounded-full px-6 py-2 text-black font-medium text-sm font-['Almarai'] transition-all"
@@ -743,6 +776,7 @@ export function Sidebar({ isCollapsed = false, onToggle, currentConversationId }
                         // Prepare update data
                         const updateData: any = {
                           full_name: tempProfileName,
+                          email: tempProfileEmail,
                         };
 
                         // If user uploaded a new photo, save avatar_url and clear avatar_id
@@ -778,6 +812,7 @@ export function Sidebar({ isCollapsed = false, onToggle, currentConversationId }
                         setHasNewUpload(false);
                         setFileToUpload(null);
                         setUploadedImage(null);
+                        setAvatarLoadError(false);
                         setShowProfileModal(false);
                       }
                     }}
@@ -821,12 +856,13 @@ export function Sidebar({ isCollapsed = false, onToggle, currentConversationId }
             className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100]"
             onClick={() => setShowDeleteAccountConfirm(false)}
           />
-          <div className="fixed inset-0 z-[101] flex items-center justify-center pointer-events-none p-4">
+          <div className="fixed inset-0 z-[101] flex items-end sm:items-center justify-center pointer-events-none sm:p-4">
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="pointer-events-auto bg-[#1F2023] border border-[#444444] rounded-2xl p-6 max-w-sm w-full"
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ duration: 0.2 }}
+              className="pointer-events-auto bg-[#1F2023] border border-[#444444] rounded-t-2xl sm:rounded-2xl p-6 max-w-sm w-full max-h-[90vh] overflow-y-auto"
             >
               <h3 className="text-lg font-medium text-white mb-2">Delete Your Account?</h3>
               <p className="text-gray-400 text-sm mb-2">This action <strong className="text-red-400">cannot be undone</strong>. All your data including:</p>

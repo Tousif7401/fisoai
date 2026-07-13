@@ -26,7 +26,7 @@ export function PageLoader({ onComplete }: { onComplete: () => void }) {
         isFadingOut ? "opacity-0" : "opacity-100"
       }`}
     >
-      <div className="flex flex-col items-center gap-8">
+      <div className="flex flex-col items-center gap-2">
         {/* Spinning Logo */}
         <svg
           className="w-24 h-24"
@@ -159,7 +159,7 @@ export function PageLoader({ onComplete }: { onComplete: () => void }) {
         {/* Loading text */}
         <p
           className="text-xs uppercase tracking-widest"
-          style={{ color: "#DEDBC8" }}
+          style={{ color: "#DEDBC8", marginTop: '5px' }}
         >
           Loading…
         </p>

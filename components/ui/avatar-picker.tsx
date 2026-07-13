@@ -20,6 +20,7 @@ interface AvatarPickerProps {
     profileName?: string;
     isUploading?: boolean;
     onUploadClick?: () => void;
+    onAvatarError?: () => void;
 }
 
 const avatars: Avatar[] = [
@@ -358,7 +359,8 @@ export function AvatarPicker({
     avatarUrl,
     profileName = "User",
     isUploading = false,
-    onUploadClick
+    onUploadClick,
+    onAvatarError
 }: AvatarPickerProps) {
     const [selectedAvatar, setSelectedAvatar] = useState<Avatar>(initialAvatar || avatars[0]);
     const [rotationCount, setRotationCount] = useState(0);
@@ -380,7 +382,7 @@ export function AvatarPicker({
     const getAvatarContent = () => {
         // Priority: upload preview > picker avatar > Gmail photo > initials
         if (uploadedImage) {
-            return <img src={uploadedImage} alt="Preview" className="w-full h-full object-cover" />;
+            return <img src={uploadedImage} alt="Preview" className="w-full h-full object-cover" onError={onAvatarError} />;
         }
         // If initialAvatar exists, user has selected a picker avatar
         if (initialAvatar) {
@@ -388,7 +390,7 @@ export function AvatarPicker({
         }
         // Fall back to Gmail/OAuth photo
         if (avatarUrl) {
-            return <img src={avatarUrl} alt={profileName} className="w-full h-full object-cover" />;
+            return <img src={avatarUrl} alt={profileName} className="w-full h-full object-cover" onError={onAvatarError} />;
         }
         // Default to selected avatar from grid
         return selectedAvatar.svg;

@@ -6,13 +6,37 @@ import { ArrowRight, Clock } from 'lucide-react';
 import { WordsPullUp } from './animations';
 import { getFeaturedArticles } from '@/lib/articles';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { PageLoader } from '@/components/PageLoader';
 
 export function Articles() {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [showLoader, setShowLoader] = useState(false);
+  const [clickedIndex, setClickedIndex] = useState<number | null>(null);
+  const router = useRouter();
 
   const articles = getFeaturedArticles();
+
+  const handleBrowseAll = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    setShowLoader(true);
+    // Use Next.js router for proper loading state
+    setTimeout(() => {
+      router.push('/articles');
+    }, 800);
+  };
+
+  const handleArticleClick = (e: React.MouseEvent<HTMLAnchorElement>, slug: string, index: number) => {
+    e.preventDefault();
+    setClickedIndex(index);
+    setShowLoader(true);
+    // Use Next.js router for proper loading state
+    setTimeout(() => {
+      router.push(`/articles/${slug}`);
+    }, 800);
+  };
 
   const cardVariants = {
     hidden: { y: 30, opacity: 0 },
@@ -26,6 +50,10 @@ export function Articles() {
       }
     })
   };
+
+  if (showLoader) {
+    return <PageLoader onComplete={() => {}} />;
+  }
 
   return (
     <section ref={ref} id="articles" className="min-h-screen bg-black py-20 md:py-32 px-4 md:px-6 relative">
@@ -50,9 +78,15 @@ export function Articles() {
           {articles.map((article, index) => {
             const isHovered = hoveredIndex === index;
             const isDimmed = hoveredIndex !== null && hoveredIndex !== index;
+            const isClicked = clickedIndex === index;
 
             return (
-              <Link key={article.slug} href={`/articles/${article.slug}`} className="block">
+              <Link
+                key={article.slug}
+                href={`/articles/${article.slug}`}
+                onClick={(e) => handleArticleClick(e, article.slug, index)}
+                className="block"
+              >
                 <motion.article
                   custom={index}
                   initial="hidden"
@@ -67,6 +101,7 @@ export function Articles() {
                     hover:bg-white/10 hover:[border:1px_solid_rgba(255,255,255,.25)]
                     transition-all duration-300 ease-out
                     ${isDimmed ? 'blur-sm scale-[0.98]' : ''}
+                    ${isClicked ? 'scale-95 bg-white/15' : ''}
                   `}
                   style={{ color: '#DEDBC8' }}
                 >
@@ -109,7 +144,8 @@ export function Articles() {
         <div className="mt-10 text-center">
           <a
             href="/articles"
-            className="inline-flex items-center gap-2 hover:gap-3 transition-all text-sm"
+            onClick={handleBrowseAll}
+            className="inline-flex items-center gap-2 hover:gap-3 transition-all text-sm cursor-pointer"
             style={{ color: '#DEDBC8' }}
           >
             Browse all articles

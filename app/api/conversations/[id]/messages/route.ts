@@ -5,9 +5,10 @@ import { NextRequest, NextResponse } from 'next/server';
 // POST - Save message to conversation
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const cookieStore = await cookies();
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -31,11 +32,47 @@ export async function POST(
     const { data: conversation, error: checkError } = await supabase
       .from('conversations')
       .select('user_id')
-      .eq('id', params.id)
+      .eq('id', id)
       .single();
 
     if (checkError || !conversation || conversation.user_id !== user.id) {
       return NextResponse.json({ error: 'Conversation not found' }, { status: 404 });
+    }
+
+    // Check daily message limit (50 messages per day)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    // First get user's conversation IDs
+    const { data: userConvs } = await supabase
+      .from('conversations')
+      .select('id')
+      .eq('user_id', user.id);
+
+    const conversationIds = userConvs?.map(c => c.id) || [];
+
+    const { data: todayMessages, error: countError } = await supabase
+      .from('messages')
+      .select('id', { count: 'exact' })
+      .eq('role', 'user')
+      .gte('created_at', today.toISOString())
+      .lt('created_at', tomorrow.toISOString())
+      .in('conversation_id', conversationIds);
+
+    if (countError) {
+      console.error('Count error:', countError);
+    }
+
+    const messageCount = todayMessages?.length || 0;
+    const DAILY_LIMIT = 30;
+
+    if (messageCount >= DAILY_LIMIT) {
+      return NextResponse.json(
+        { error: 'Daily message limit reached', limit: DAILY_LIMIT },
+        { status: 429 }
+      );
     }
 
     const body = await request.json();
@@ -48,7 +85,7 @@ export async function POST(
     const { data: message, error: insertError } = await supabase
       .from('messages')
       .insert({
-        conversation_id: params.id,
+        conversation_id: id,
         role,
         content,
         article_suggestion: articleSuggestion || null

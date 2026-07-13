@@ -8,7 +8,8 @@ export default function Template({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      {isLoading && <PageLoader onComplete={() => setIsLoading(false)} />}
+      {/* Loading screen disabled for now */}
+      {/* {isLoading && <PageLoader onComplete={() => setIsLoading(false)} />} */}
       {children}
     </>
   );

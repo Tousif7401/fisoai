@@ -25,24 +25,39 @@ export interface ConversationWithMessages {
 
 /**
  * Create a new conversation
+ * Returns a result object with success status
  */
 export async function createConversation(
   userId: string,
   title?: string
-): Promise<Conversation> {
-  const response = await fetch('/api/conversations', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ title })
-  });
+): Promise<{ success: true; data: Conversation } | { success: false; error: string }> {
+  try {
+    const response = await fetch('/api/conversations', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ title })
+    });
 
-  if (!response.ok) {
-    throw new Error('Failed to create conversation');
+    if (!response.ok) {
+      let errorMessage = 'Failed to create conversation';
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.error || errorMessage;
+      } catch (e) {
+        // If JSON parsing fails, use status text
+        errorMessage = response.statusText || errorMessage;
+      }
+      return { success: false, error: errorMessage };
+    }
+
+    const data = await response.json();
+    return { success: true, data };
+  } catch (error) {
+    // Return error instead of throwing to avoid Next.js error overlay in dev
+    return { success: false, error: 'Failed to create conversation' };
   }
-
-  return response.json();
 }
 
 /**
@@ -107,27 +122,42 @@ export async function getConversationMessages(
 
 /**
  * Add a message to a conversation
+ * Returns a result object with success status
  */
 export async function addMessage(
   conversationId: string,
   role: 'user' | 'assistant',
   content: string,
   articleSuggestion?: Message['articleSuggestion']
-): Promise<void> {
-  const response = await fetch(`/api/conversations/${conversationId}/messages`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      role,
-      content,
-      articleSuggestion
-    })
-  });
+): Promise<{ success: true } | { success: false; error: string }> {
+  try {
+    const response = await fetch(`/api/conversations/${conversationId}/messages`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        role,
+        content,
+        articleSuggestion
+      })
+    });
 
-  if (!response.ok) {
-    throw new Error('Failed to add message');
+    if (!response.ok) {
+      // Try to get error message from response
+      let errorMessage = 'Failed to add message';
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.error || errorMessage;
+      } catch (e) {
+        errorMessage = response.statusText || errorMessage;
+      }
+      return { success: false, error: errorMessage };
+    }
+
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: 'Failed to add message' };
   }
 }
 
