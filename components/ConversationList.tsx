@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, useEffect, useRef, memo, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Pin, MessageSquare, MoreVertical, Edit3, Trash2, Check, X, ChevronDown, Download } from 'lucide-react';
 import { createBrowserClient } from '@supabase/ssr';
 import * as chatService from '@/lib/supabase/chat';
 import { useToast } from '@/components/ui/toast';
+import type { Message } from '@/lib/supabase/types';
 import { ChatExportModal } from '@/components/ChatExportModal';
 import { Conversation as DbConversation } from '@/lib/supabase/types';
 
@@ -16,7 +16,6 @@ interface Conversation extends DbConversation {
 
 interface ConversationListProps {
   currentConversationId?: string | null;
-  onConversationSelect?: (id: string) => void;
   isCollapsed?: boolean;
   onMobileClose?: () => void;
 }
@@ -67,7 +66,7 @@ interface ConversationSectionProps {
   getRelativeTime: (date: string) => string;
 }
 
-const ConversationSection = memo(({ title, conversations, showPin = true, defaultExpanded = true, collapsedSections, onToggleSection, currentConversationId, editingId, menuOpen, editedTitle, onSetMenuOpen, onSelectConversation, onStartEdit, onSaveEdit, onCancelEdit, onPinConversation, onExportConversation, onDeleteConversation, onSetEditedTitle, onSetButtonRef, onSetDropdownRef, getRelativeTime }: ConversationSectionProps) => {
+const ConversationSection = memo(({ title, conversations, showPin = true, collapsedSections, onToggleSection, currentConversationId, editingId, menuOpen, editedTitle, onSetMenuOpen, onSelectConversation, onStartEdit, onSaveEdit, onCancelEdit, onPinConversation, onExportConversation, onDeleteConversation, onSetEditedTitle, onSetButtonRef, onSetDropdownRef, getRelativeTime }: ConversationSectionProps) => {
   if (conversations.length === 0) return null;
 
   // Simple logic: section is expanded if it's NOT in the collapsedSections set
@@ -292,8 +291,7 @@ const ConversationItem = memo(ConversationItemNoMemo, (prevProps, nextProps) => 
 
 ConversationItem.displayName = 'ConversationItem';
 
-function ConversationList({ currentConversationId, onConversationSelect, isCollapsed = false, onMobileClose }: ConversationListProps) {
-  const router = useRouter();
+function ConversationList({ currentConversationId, isCollapsed = false, onMobileClose }: ConversationListProps) {
   const { showError, showSuccess } = useToast();
   const [conversations, setConversations] = useState<{
     pinned: Conversation[];
@@ -319,7 +317,7 @@ function ConversationList({ currentConversationId, onConversationSelect, isColla
   const [selectedConversation, setSelectedConversation] = useState<{
     id: string;
     title: string;
-    messages: any[];
+    messages: Message[];
   } | null>(null);
 
   // Store refs for each conversation item
@@ -358,7 +356,7 @@ function ConversationList({ currentConversationId, onConversationSelect, isColla
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const convs = await chatService.getUserConversations(user.id);
+      const convs = await chatService.getUserConversations();
       setConversations(convs);
     } catch (error) {
       console.error('Failed to load conversations:', error);
@@ -404,7 +402,6 @@ function ConversationList({ currentConversationId, onConversationSelect, isColla
       if (!conversation) return;
 
       // Add the new conversation to the appropriate section
-      const now = new Date();
 
       // Determine which section this conversation belongs to
       const getConversationSection = (conv: Conversation) => {
@@ -512,7 +509,7 @@ function ConversationList({ currentConversationId, onConversationSelect, isColla
           older: updateList(prev.older)
         };
       });
-    } catch (error) {
+    } catch {
       showError('Failed to update conversation');
     }
     setMenuOpen(null);
@@ -558,7 +555,7 @@ function ConversationList({ currentConversationId, onConversationSelect, isColla
       // Exit edit mode after successful update
       setEditingId(null);
       setMenuOpen(null);
-    } catch (error) {
+    } catch {
       showError('Failed to rename conversation');
     }
   }, [editedTitle, showSuccess, showError]);
@@ -841,7 +838,10 @@ function ConversationList({ currentConversationId, onConversationSelect, isColla
           }}
           conversationId={selectedConversation.id}
           conversationTitle={selectedConversation.title}
-          messages={selectedConversation.messages}
+          messages={selectedConversation.messages.map(msg => ({
+            ...msg,
+            timestamp: new Date(msg.created_at)
+          }))}
         />
       )}
     </div>

@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import { useState } from "react";
-import { ArrowLeft, Github } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { signInWithOAuth } from "@/lib/supabase/auth";
 

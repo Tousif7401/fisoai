@@ -1,5 +1,7 @@
 "use client";
 
+/* eslint-disable @next/next/no-img-element */
+
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import * as TooltipPrimitive from '@radix-ui/react-tooltip';
@@ -10,12 +12,9 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   BookOpen,
-  MessageSquare,
-  History,
   User,
   LogOut,
   HelpCircle,
-  Camera,
   UserX,
   X
 } from 'lucide-react';
@@ -32,8 +31,6 @@ function cn(...classes: (string | undefined | null | false | number)[]) {
 
 // Tooltip Components
 const TooltipProvider = TooltipPrimitive.TooltipProvider;
-const Tooltip = TooltipPrimitive.Tooltip;
-const TooltipTrigger = TooltipPrimitive.TooltipTrigger;
 const TooltipContent = React.forwardRef<
   React.ElementRef<typeof TooltipPrimitive.TooltipContent>,
   React.ComponentPropsWithoutRef<typeof TooltipPrimitive.TooltipContent>
@@ -86,10 +83,9 @@ export function Sidebar({ isCollapsed = false, onToggle, currentConversationId, 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [profileName, setProfileName] = useState('Your Profile');
   const [profileEmail, setProfileEmail] = useState('mohammed@example.com');
-  const [profilePhoto, setProfilePhoto] = useState('M');
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [savedAvatarSvg, setSavedAvatarSvg] = useState<React.ReactNode>(null);
-  const [currentSelectedAvatar, setCurrentSelectedAvatar] = useState<any>(null);
+  const [currentSelectedAvatar, setCurrentSelectedAvatar] = useState<{ id: number; svg: React.ReactNode; alt: string } | undefined>(undefined);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [fileToUpload, setFileToUpload] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -146,7 +142,7 @@ export function Sidebar({ isCollapsed = false, onToggle, currentConversationId, 
           // Reset avatar states based on database
           if (profile.avatar_url) {
             setAvatarUrl(profile.avatar_url);
-            setCurrentSelectedAvatar(null);
+            setCurrentSelectedAvatar(undefined);
             setSavedAvatarSvg(null);
           } else if (profile.avatar_id) {
             const avatar = avatarList.find(a => a.id === profile.avatar_id);
@@ -157,7 +153,7 @@ export function Sidebar({ isCollapsed = false, onToggle, currentConversationId, 
             }
           } else {
             // No avatar set
-            setCurrentSelectedAvatar(null);
+            setCurrentSelectedAvatar(undefined);
             setSavedAvatarSvg(null);
             setAvatarUrl(null);
           }
@@ -240,7 +236,7 @@ export function Sidebar({ isCollapsed = false, onToggle, currentConversationId, 
     setHasNewUpload(true); // Mark that we have a new upload
 
     // Clear picker selection when user uploads a photo
-    setCurrentSelectedAvatar(null);
+    setCurrentSelectedAvatar(undefined);
     setAvatarUrl(null);
 
     // Clear the file input
@@ -284,7 +280,7 @@ export function Sidebar({ isCollapsed = false, onToggle, currentConversationId, 
       // Restore avatar states from database
       if (profile.avatar_url) {
         setAvatarUrl(profile.avatar_url);
-        setCurrentSelectedAvatar(null);
+        setCurrentSelectedAvatar(undefined);
         setSavedAvatarSvg(null);
       } else if (profile.avatar_id) {
         const avatar = avatarList.find(a => a.id === profile.avatar_id);
@@ -294,7 +290,7 @@ export function Sidebar({ isCollapsed = false, onToggle, currentConversationId, 
           setAvatarUrl(null);
         }
       } else {
-        setCurrentSelectedAvatar(null);
+        setCurrentSelectedAvatar(undefined);
         setSavedAvatarSvg(null);
       }
     }
@@ -774,7 +770,7 @@ export function Sidebar({ isCollapsed = false, onToggle, currentConversationId, 
                         }
 
                         // Prepare update data
-                        const updateData: any = {
+                        const updateData: Record<string, string | null> = {
                           full_name: tempProfileName,
                           email: tempProfileEmail,
                         };
@@ -784,12 +780,12 @@ export function Sidebar({ isCollapsed = false, onToggle, currentConversationId, 
                           updateData.avatar_url = finalAvatarUrl;
                           updateData.avatar_id = null;
                           // Clear picker avatar when we saved an uploaded photo
-                          setCurrentSelectedAvatar(null);
+                          setCurrentSelectedAvatar(undefined);
                           setSavedAvatarSvg(null);
                         }
                         // If user selected from picker, save avatar_id and clear avatar_url
                         else if (currentSelectedAvatar) {
-                          updateData.avatar_id = currentSelectedAvatar.id;
+                          updateData.avatar_id = currentSelectedAvatar.id.toString();
                           updateData.avatar_url = null;
                           // Save the picker avatar SVG
                           setSavedAvatarSvg(currentSelectedAvatar.svg);

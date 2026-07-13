@@ -38,6 +38,7 @@ export function Header() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/logo.svg" alt="Calmify AI" className="w-16 h-16 brightness-0 invert" />
             <span className="text-[#E1E0CC] font-medium -ml-3 pl-0">Calmify AI</span>
           </Link>

@@ -4,7 +4,6 @@ import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import { WordsPullUp } from './animations';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 
 export function Hero() {
   const router = useRouter();

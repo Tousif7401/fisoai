@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { Conversation } from '@/lib/supabase/types';
 
 // GET - Fetch user's conversations
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const cookieStore = await cookies();
     const supabase = createServerClient(
