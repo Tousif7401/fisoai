@@ -16,18 +16,21 @@ import * as chatService from '@/lib/supabase/chat';
 import { useToast } from '@/components/ui/toast';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 
+interface ArticleSuggestion {
+  slug: string;
+  title: string;
+  excerpt: string;
+  readTime: string;
+  category: string;
+  reason?: string;
+}
+
 interface Message {
   id: string;
   content: string;
   role: 'user' | 'assistant';
   timestamp: Date;
-  articleSuggestion?: {
-    slug: string;
-    title: string;
-    excerpt: string;
-    readTime: string;
-    category: string;
-  };
+  articleSuggestion?: ArticleSuggestion;
 }
 
 const CALMIFY_DESCRIPTION = `I'm **Calmify**, an AI companion designed for developers, builders, and anyone who needs mental health support.
@@ -527,6 +530,7 @@ export default function ChatPage() {
         const reader = response.body?.getReader();
         const decoder = new TextDecoder();
         let aiResponse = '';
+        let toolArticleSuggestion: ArticleSuggestion | null = null;
 
         if (reader) {
           while (true) {
@@ -543,7 +547,41 @@ export default function ChatPage() {
 
                 try {
                   const parsed = JSON.parse(data);
-                  if (parsed.chunk) {
+
+                  // Handle content chunks (text response)
+                  if (parsed.type === 'content' && parsed.chunk) {
+                    aiResponse += parsed.chunk;
+                  }
+                  // Handle tool calls (for logging/debugging)
+                  else if (parsed.type === 'tool_call') {
+                    console.log('🔧 TOOL CALLED:', parsed.tool_call);
+                  }
+                  // Handle tool results (article suggestions, etc.)
+                  else if (parsed.type === 'tool_result' && parsed.result) {
+                    console.log('✅ TOOL RESULT:', parsed.result);
+
+                    // Extract article suggestion from suggest_article tool
+                    if (parsed.result.success && parsed.result.article) {
+                      toolArticleSuggestion = {
+                        slug: parsed.result.article.slug,
+                        title: parsed.result.article.title,
+                        excerpt: parsed.result.article.excerpt,
+                        category: parsed.result.article.category,
+                        readTime: parsed.result.article.readTime,
+                        reason: parsed.result.reason,
+                      };
+                    }
+                  }
+                  // Handle tool errors
+                  else if (parsed.type === 'tool_error') {
+                    console.error('❌ TOOL ERROR:', parsed.error);
+                  }
+                  // Handle errors
+                  else if (parsed.type === 'error') {
+                    console.error('Stream error:', parsed.error);
+                  }
+                  // Legacy: handle plain chunk (backward compatibility)
+                  else if (parsed.chunk && !parsed.type) {
                     aiResponse += parsed.chunk;
                   }
                 } catch {
@@ -554,8 +592,8 @@ export default function ChatPage() {
           }
         }
 
-        // Get article suggestion based on the message
-        const articleSuggestion = getArticleSuggestion(message);
+        // Use tool-suggested article if available, otherwise use keyword-based suggestion
+        const articleSuggestion = toolArticleSuggestion || getArticleSuggestion(message);
 
         const responseMessage: Message = {
           id: (Date.now() + 1).toString(),
