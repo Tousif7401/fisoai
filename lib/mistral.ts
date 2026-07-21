@@ -85,8 +85,19 @@ You ONLY discuss: mental health, emotions, burnout, relationships affecting well
  * Chat history interface for maintaining conversation context
  */
 export interface ChatMessage {
-  role: 'user' | 'assistant';
+  role: 'user' | 'assistant' | 'tool';
   content: string;
+  tool_call_id?: string;
+  name?: string;
+}
+
+/**
+ * Tool call interface
+ */
+export interface ToolCall {
+  id: string;
+  name: string;
+  arguments: string; // JSON string
 }
 
 /**
@@ -126,7 +137,7 @@ export async function sendMessage(
     ];
 
     const response = await mistral.chat.complete({
-      model: 'mistral-small-latest',
+      model: 'mistral-large-latest', // Changed to support tool use
       messages: [
         { role: 'system', content: CALMIFY_SYSTEM_PROMPT },
         ...messages,
@@ -137,7 +148,24 @@ export async function sendMessage(
     return typeof content === 'string' ? content : String(content || '');
   } catch (error) {
     console.error('Mistral API error:', error);
-    throw new Error('Failed to get response from Calmify AI. Please try again.');
+
+    let userFriendlyMessage = 'Something went wrong. Please try again.';
+
+    if (error instanceof Error) {
+      const errorMsg = error.message.toLowerCase();
+
+      if (errorMsg.includes('429') || errorMsg.includes('rate limit')) {
+        userFriendlyMessage = 'AI is busy right now. Please wait a moment and try again.';
+      } else if (errorMsg.includes('503') || errorMsg.includes('unavailable')) {
+        userFriendlyMessage = 'AI service temporarily unavailable. Please try again in a few minutes.';
+      } else if (errorMsg.includes('timeout') || errorMsg.includes('timed out')) {
+        userFriendlyMessage = 'AI is taking longer than usual. Please try again.';
+      } else if (errorMsg.includes('network') || errorMsg.includes('connection')) {
+        userFriendlyMessage = 'Connection issue. Please check your internet and try again.';
+      }
+    }
+
+    throw new Error(userFriendlyMessage);
   }
 }
 
@@ -159,7 +187,7 @@ export async function* streamMessage(
     ];
 
     const stream = await mistral.chat.stream({
-      model: 'mistral-small-latest',
+      model: 'mistral-large-latest', // Changed to support tool use
       messages: [
         { role: 'system', content: CALMIFY_SYSTEM_PROMPT },
         ...messages,
@@ -177,9 +205,138 @@ export async function* streamMessage(
       }
     }
   } catch (error: unknown) {
-    // Only log errors, not debug info
     console.error('Mistral streaming error:', error instanceof Error ? error.message : 'Unknown error');
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    throw new Error(`Failed to stream response: ${errorMessage}`);
+
+    let userFriendlyMessage = 'Something went wrong. Please try again.';
+
+    if (error instanceof Error) {
+      const errorMsg = error.message.toLowerCase();
+
+      if (errorMsg.includes('429') || errorMsg.includes('rate limit')) {
+        userFriendlyMessage = 'AI is busy right now. Please wait a moment and try again.';
+      } else if (errorMsg.includes('503') || errorMsg.includes('unavailable')) {
+        userFriendlyMessage = 'AI service temporarily unavailable. Please try again in a few minutes.';
+      } else if (errorMsg.includes('timeout') || errorMsg.includes('timed out')) {
+        userFriendlyMessage = 'AI is taking longer than usual. Please try again.';
+      } else if (errorMsg.includes('network') || errorMsg.includes('connection')) {
+        userFriendlyMessage = 'Connection issue. Please check your internet and try again.';
+      }
+    }
+
+    throw new Error(userFriendlyMessage);
+  }
+}
+
+/**
+ * Message chunk interface for tool-enabled streaming
+ */
+export interface StreamChunk {
+  type: 'content' | 'tool_call' | 'error';
+  content?: string;
+  tool_call?: ToolCall;
+  error?: string;
+}
+
+/**
+ * Streams a response from Mistral with tool use support
+ *
+ * @param userMessage - The user's message
+ * @param conversationHistory - Optional array of previous messages for context
+ * @param tools - Optional array of tools the AI can use
+ * @returns An async generator yielding stream chunks (content or tool calls)
+ */
+export async function* streamMessageWithTools(
+  userMessage: string,
+  conversationHistory?: ChatMessage[],
+  tools?: any[]
+): AsyncGenerator<StreamChunk, void, unknown> {
+  try {
+    const messages: ChatMessage[] = [
+      ...(conversationHistory || []),
+      { role: 'user', content: userMessage },
+    ];
+
+    const streamRequest: any = {
+      model: 'mistral-large-latest', // Changed to support tool use
+      messages: [
+        { role: 'system', content: CALMIFY_SYSTEM_PROMPT },
+        ...messages,
+      ],
+    };
+
+    // Add tools if provided
+    if (tools && tools.length > 0) {
+      streamRequest.tools = tools;
+      // Let AI decide when to use tools
+      streamRequest.tool_choice = 'auto';
+    }
+
+    const stream = await mistral.chat.stream(streamRequest);
+
+    for await (const chunk of stream) {
+      const delta = chunk.data?.choices?.[0]?.delta;
+
+      // Check for content
+      if (delta?.content) {
+        const contentStr = typeof delta.content === 'string' ? delta.content : String(delta.content);
+        yield { type: 'content', content: contentStr };
+      }
+
+      // Check for tool calls
+      if (delta?.toolCalls && delta.toolCalls.length > 0) {
+        for (const toolCall of delta.toolCalls) {
+          if (toolCall.function) {
+            // Convert arguments to string if it's an object
+            let argsString = '{}';
+            if (typeof toolCall.function.arguments === 'string') {
+              argsString = toolCall.function.arguments;
+            } else if (typeof toolCall.function.arguments === 'object' && toolCall.function.arguments !== null) {
+              argsString = JSON.stringify(toolCall.function.arguments);
+            }
+
+            yield {
+              type: 'tool_call',
+              tool_call: {
+                id: toolCall.id || '',
+                name: toolCall.function.name || '',
+                arguments: argsString
+              }
+            };
+          }
+        }
+      }
+    }
+  } catch (error: unknown) {
+    console.error('Mistral streaming with tools error:', error instanceof Error ? error.message : 'Unknown error');
+
+    let userFriendlyMessage = 'Something went wrong. Please try again.';
+
+    // Detect specific error types from Mistral SDK
+    if (error instanceof Error) {
+      const errorMsg = error.message.toLowerCase();
+
+      // Rate limit detection
+      if (errorMsg.includes('429') || errorMsg.includes('rate limit') || errorMsg.includes('too many requests')) {
+        userFriendlyMessage = 'AI is busy right now. Please wait a moment and try again.';
+      }
+      // Service unavailable
+      else if (errorMsg.includes('503') || errorMsg.includes('unavailable') || errorMsg.includes('service error')) {
+        userFriendlyMessage = 'AI service temporarily unavailable. Please try again in a few minutes.';
+      }
+      // Timeout detection
+      else if (errorMsg.includes('timeout') || errorMsg.includes('timed out') || errorMsg.includes('abort')) {
+        userFriendlyMessage = 'AI is taking longer than usual. Please try again.';
+      }
+      // Server error
+      else if (errorMsg.includes('500') || errorMsg.includes('server error')) {
+        userFriendlyMessage = 'AI service is having issues. Please try again later.';
+      }
+      // Network/connection errors
+      else if (errorMsg.includes('network') || errorMsg.includes('connection') || errorMsg.includes('fetch')) {
+        userFriendlyMessage = 'Connection issue. Please check your internet and try again.';
+      }
+    }
+
+    yield { type: 'error', error: userFriendlyMessage };
   }
 }
