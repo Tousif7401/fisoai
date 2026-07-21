@@ -66,7 +66,7 @@ export async function POST(
     }
 
     const messageCount = todayMessages?.length || 0;
-    const DAILY_LIMIT = 30;
+    const DAILY_LIMIT = 30; // Re-enabled: Protect against API cost spikes
 
     if (messageCount >= DAILY_LIMIT) {
       return NextResponse.json(
